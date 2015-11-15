@@ -1,0 +1,30 @@
+{
+  "name": "batch-file-renamer",
+  "version": "0.0.0",
+  "description": "Module to simplify writing node.js commandline applications that rename groups of files",
+  "main": "lib/index.js",
+  "scripts": {
+    "compile": "./node_modules/babel-cli/bin/babel.js -d lib src/",
+    "prepublish": "npm run compile",
+    "test": "mocha --compilers js:babel-core/register test/*.js",
+    "test:watch": "npm run test -- -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rohanorton/batch-file-renamer.git"
+  },
+  "author": "Rohan Orton",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rohanorton/batch-file-renamer/issues"
+  },
+  "homepage": "https://github.com/rohanorton/batch-file-renamer#readme",
+  "devDependencies": {
+    "babel-cli": "^6.1.18",
+    "babel-core": "^6.1.21",
+    "mocha": "^2.3.3"
+  },
+  "dependencies": {
+    "lodash": "^3.10.1"
+  }
+}
