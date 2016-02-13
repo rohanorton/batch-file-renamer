@@ -18,7 +18,15 @@ describe 'renamerArgsBuilder', ->
         expected = [ [ 'old1', 'new1' ] ]
         assert.deepEqual(actual, expected)
 
-    # Errors:
+    # Asserts:
+    it 'throws error if source array unspecified', ->
+        fn = -> renamerArgsBuilder()
+        assert.throws(fn, /sources/i)
+
+    it 'throws error if destination array unspecified', ->
+        fn = -> renamerArgsBuilder([ 'old1' ])
+        assert.throws(fn, /destination/i)
+
     it 'throws error if array lengths mismatched', ->
         fn = -> renamerArgsBuilder([ 'old1', 'old2', 'old3' ], [ 'new1' ])
-        assert.throws(fn, 'Array Length Mismatch Error')
+        assert.throws(fn, /must match/i)
