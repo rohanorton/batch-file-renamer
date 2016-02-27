@@ -30,6 +30,7 @@
     "mock-fs": "^3.7.0"
   },
   "dependencies": {
+    "es6-promisify": "^3.0.0",
     "fs-promise": "^0.4.1",
     "lodash": "^4.5.1"
   }
