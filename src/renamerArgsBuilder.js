@@ -15,7 +15,7 @@ const argsBuilder = (sourcenames, destnames) => {
     return _(sourcenames)
         .zip(destnames)
         .reject(identicalSourceAndDest)
-        .uniq(JSON.stringify)
+        .uniqBy(JSON.stringify)
         .value();
 }
 
