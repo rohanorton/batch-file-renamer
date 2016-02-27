@@ -1,10 +1,9 @@
-import fs from 'fs';
-import asyn from 'async';
+import fs from 'fs-promise';
 
-let rename = ([src, dest], callback) =>
-    fs.rename(src, dest, callback);
-
-let fsRenamer = (pairs, callback) =>
-    asyn.each(pairs, rename, callback);
+let fsRenamer = async (pairs) => {
+    for (let pair of pairs) {
+        await fs.rename(...pair);
+    }
+}
 
 export default fsRenamer;
