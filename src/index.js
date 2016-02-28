@@ -4,7 +4,12 @@ import hasCallback from 'has-callback';
 import getExistingFilenames from './getExistingFilenames';
 import promisify from 'es6-promisify';
 
-const init = async (rule, oldnames, options) => {
+
+const batchFileRenamer = async ({ rule, argv }) => {
+    rule = hasCallback(rule) ? promisify(rule) : rule;
+    let oldnames = argv;
+    let options = {};
+
     oldnames = await getExistingFilenames(oldnames, options);
 
     let newnames = [];
@@ -15,12 +20,6 @@ const init = async (rule, oldnames, options) => {
 
     let args = renamerArgsBuilder(oldnames, newnames);
     await fsRenamer(args)
-}
-
-const batchFileRenamer = ({ rule, argv }, callback) => {
-    rule = hasCallback(rule) ? promisify(rule) : rule;
-    let oldnames = argv;
-    init(rule, oldnames, {}).then(callback).catch(callback);
 }
 
 export default batchFileRenamer;

@@ -32,10 +32,11 @@ describe('batchFileRenamer', () => {
         batchFileRenamer({
             rule: () => expected,
             argv: [ oldfile ]
-        }, (err) => {
-            assert(!err, 'Function should not error: ' + err);
+        }).then(() => {
             assertFile.moved(oldfile, expected);
             done();
+        }).catch(err => {
+            assert(!err, 'Function should not error: ' + err);
         });
     });
 
@@ -46,10 +47,11 @@ describe('batchFileRenamer', () => {
         batchFileRenamer({
             rule: upperCaseRule,
             argv: oldfiles
-        }, (err) => {
-            assert(!err, 'Function should not error: ', err)
+        }).then(() => {
             _.each(expected, (newfile, i) => assertFile.moved(oldfiles[i], newfile));
             done()
+        }).catch(err => {
+            assert(!err, 'Function should not error: ', err)
         });
     });
 
@@ -61,11 +63,12 @@ describe('batchFileRenamer', () => {
         batchFileRenamer({
             rule: asyncRule,
             argv: oldfiles
-        }, (err) => {
-            assert(!err, 'Function should not error: ', err)
+        }).then(() => {
             _.each(expected, (newfile, i) => assertFile.moved(oldfiles[i], newfile));
-            done()
-        })
+            done();
+        }).catch(err => {
+            assert(!err, 'Function should not error: ', err);
+        });
     });
 
     // Lets be strict about sources by default...
@@ -75,7 +78,9 @@ describe('batchFileRenamer', () => {
         batchFileRenamer({
             rule: upperCaseRule,
             argv: oldfiles
-        }, (err) => {
+        }).then(() => {
+            throw "Function should not complete";
+        }).catch(err => {
             assert(err, 'Function should error');
             _.each(existing, (oldfile) => assertFile.unmoved(oldfile));
             done();
