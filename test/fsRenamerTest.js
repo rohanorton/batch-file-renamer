@@ -22,34 +22,32 @@ afterEach(() => {
 });
 
 describe('fsRenamer', () => {
-    it('takes array of src/dest pairs and moves files', (done) => {
+    it('takes array of src/dest pairs and moves files', () => {
         const pairs = [
             [ 'testfile1', 'foobarbaz' ],
             [ 'testfile2', 'bazbarfoo' ]
         ];
 
-        fsRenamer(pairs).then(() => {
+        return fsRenamer(pairs).then(() => {
             _.each(pairs, ([ oldfile, newfile ]) => assertFile.moved(oldfile, newfile));
-            done();
         });
     });
 
-    it('does not error on empty array', (done) => {
-        fsRenamer([]).then(done);
+    it('does not error on empty array', () => {
+        return fsRenamer([]);
     });
 
-    it('returns error if source does not exist', (done) => {
+    it('returns error if source does not exist', () => {
         const pairs = [
             [ 'this-file-doesnt-exist', 'foobarbaz' ]
         ];
 
-        fsRenamer(pairs)
+        return fsRenamer(pairs)
             .then(() => {
-                assert(false, 'Should not return')
+                throw 'Should not return';
             })
-            .catch((err) => {
+            .catch(err => {
                 assert(err, 'Should return an error');
-                done();
             })
     });
 

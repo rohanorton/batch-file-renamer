@@ -25,57 +25,54 @@ afterEach(() => {
 
 describe('batchFileRenamer', () => {
 
-    it('should rename a single file using basic rule', (done) => {
+    it('should rename a single file using basic rule', () => {
         const oldfile = 'testfile1'
         const expected = 'TEST_FILE_ONE'
 
-        batchFileRenamer({
+        return batchFileRenamer({
             rule: () => expected,
             argv: [ oldfile ]
         }).then(() => {
             assertFile.moved(oldfile, expected);
-            done();
         }).catch(err => {
             assert(!err, 'Function should not error: ' + err);
         });
     });
 
-    it('should be able to rename files to new filenames based on rule', (done) => {
+    it('should be able to rename files to new filenames based on rule', () => {
         const oldfiles = [ 'testfile1', 'testfile2', 'testfile3' ]
         const expected = [ 'TESTFILE1', 'TESTFILE2', 'TESTFILE3' ]
 
-        batchFileRenamer({
+        return batchFileRenamer({
             rule: upperCaseRule,
             argv: oldfiles
         }).then(() => {
             _.each(expected, (newfile, i) => assertFile.moved(oldfiles[i], newfile));
-            done()
         }).catch(err => {
             assert(!err, 'Function should not error: ', err)
         });
     });
 
-    it('should be able to use async rule', (done) => {
+    it('should be able to use async rule', () => {
         const oldfiles = [ 'testfile1', 'testfile2', 'testfile3' ]
         const expected = [ 'TESTFILE1', 'TESTFILE2', 'TESTFILE3' ]
         const asyncRule = (file, options, callback) => _.defer(callback, null, file.toUpperCase())
 
-        batchFileRenamer({
+        return batchFileRenamer({
             rule: asyncRule,
             argv: oldfiles
         }).then(() => {
             _.each(expected, (newfile, i) => assertFile.moved(oldfiles[i], newfile));
-            done();
         }).catch(err => {
             assert(!err, 'Function should not error: ', err);
         });
     });
 
     // Lets be strict about sources by default...
-    it('does not move any files if src file does not exist', (done) => {
+    it('does not move any files if src file does not exist', () => {
         const existing = [ 'testfile1', 'testfile2' ];
         const oldfiles = existing.concat([ 'this-file-does-not-exist' ]);
-        batchFileRenamer({
+        return batchFileRenamer({
             rule: upperCaseRule,
             argv: oldfiles
         }).then(() => {
@@ -83,7 +80,6 @@ describe('batchFileRenamer', () => {
         }).catch(err => {
             assert(err, 'Function should error');
             _.each(existing, (oldfile) => assertFile.unmoved(oldfile));
-            done();
         });
     });
 });

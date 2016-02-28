@@ -18,22 +18,21 @@ afterEach(() => {
 });
 
 describe('getExistingFilenames', () => {
-    it('should callback with array of all files if all source files exist', (done) => {
+    it('should callback with array of all files if all source files exist', () => {
         const files = [ 'testfile1', 'testfile2', 'testfile3' ];
         const expected = files;
-        getExistingFilenames(files).then(actual => {
-            assert.deepEqual(actual, expected);
-            done();
-        });
+        return getExistingFilenames(files)
+            .then(actual => {
+                assert.deepEqual(actual, expected);
+            });
     });
-    it('should error if files do not exist', (done) => {
+    it('should error if files do not exist', () => {
         const files = [ 'testfile1', 'this-is-made-up', 'testfile2', 'testfile3', 'oops-another-made-up-file' ];
-        getExistingFilenames(files)
+        return getExistingFilenames(files)
             .then(() => {
-                assert(false, 'Should not return files');
+                throw 'Should not return files';
             }).catch(err => {
                 assert(err, 'Should error');
-                done();
             });
     });
 });
