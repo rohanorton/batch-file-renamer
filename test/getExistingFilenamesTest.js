@@ -35,7 +35,7 @@ describe('getExistingFilenames', () => {
                 assert(err, 'Should error');
             });
     });
-    it('should not error if file does not exist and passed { 'ignore-missing-file': true } option', () => {
+    it('should not error if file does not exist and passed { "ignore-missing-file": true } option', () => {
         const files = [ 'testfile1', 'this-is-made-up', 'testfile2', 'testfile3', 'oops-another-made-up-file' ];
         const expected = [ 'testfile1', 'testfile2', 'testfile3' ];
         const options = { 'ignore-missing-file': true };

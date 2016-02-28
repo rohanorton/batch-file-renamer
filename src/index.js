@@ -1,16 +1,27 @@
+import hasCallback from 'has-callback';
+import promisify from 'es6-promisify';
+import yargsBuilder from 'yargs-builder';
+
 import renamerArgsBuilder from './renamerArgsBuilder';
 import fsRenamer from './fsRenamer';
-import hasCallback from 'has-callback';
 import getExistingFilenames from './getExistingFilenames';
-import promisify from 'es6-promisify';
 
+import {ERROR_ON_MISSING_FILE} from './flags';
+
+const parseArgs = (argv) => {
+    const args = yargsBuilder({
+        options: {
+            [ERROR_ON_MISSING_FILE]: { default: false, describe: 'Fail if source file missing', type: 'boolean' }
+        }
+    }, argv).argv;
+    return [ args._, args ];
+}
 
 const batchFileRenamer = async ({ rule, argv }) => {
     rule = hasCallback(rule) ? promisify(rule) : rule;
-    let oldnames = argv;
-    let options = {};
+    const [filenames, options] = parseArgs(argv);
 
-    oldnames = await getExistingFilenames(oldnames, options);
+    const oldnames = await getExistingFilenames(filenames, options);
 
     let newnames = [];
     for (let oldname of oldnames) {

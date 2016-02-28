@@ -68,13 +68,27 @@ describe('batchFileRenamer', () => {
         });
     });
 
-    // Lets be strict about sources by default...
-    it('does not move any files if src file does not exist', () => {
+    it('moves existing files', () => {
         const existing = [ 'testfile1', 'testfile2' ];
-        const oldfiles = existing.concat([ 'this-file-does-not-exist' ]);
+        const expected = [ 'TESTFILE1', 'TESTFILE2' ];
+        const oldfiles =[ ...existing, 'this-file-does-not-exist' ];
         return batchFileRenamer({
             rule: upperCaseRule,
             argv: oldfiles
+        }).then(() => {
+            _.each(expected, (newfile, i) => assertFile.moved(oldfiles[i], newfile));
+        }).catch(err => {
+            assert(!err, 'Function should not error: ', err);
+        });
+    });
+
+    it('does not move any files if src file does not exist and error-on-missing-files flag passed', () => {
+        const existing = [ 'testfile1', 'testfile2' ];
+        const oldfiles = existing.concat([ 'this-file-does-not-exist' ]);
+        const flags = [ '--error-on-missing-file' ];
+        return batchFileRenamer({
+            rule: upperCaseRule,
+            argv: [...flags, ...oldfiles]
         }).then(() => {
             throw "Function should not complete";
         }).catch(err => {
