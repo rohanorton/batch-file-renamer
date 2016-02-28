@@ -29,8 +29,8 @@ const batchFileRenamer = async ({ rule, argv }) => {
         newnames.push(newname);
     }
 
-    let args = renamerArgsBuilder(oldnames, newnames);
-    await fsRenamer(args)
+    let pairs = renamerArgsBuilder(oldnames, newnames);
+    await fsRenamer(pairs);
 }
 
 export default batchFileRenamer;
