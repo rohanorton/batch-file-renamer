@@ -1,9 +1,11 @@
 /*globals it, describe, beforeEach, afterEach */
 import mock from 'mock-fs';
 import _ from 'lodash';
-import assert from 'assert';
+import chai, { assert } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import batchFileRenamer from '../src';
 import * as assertFile from './utils/assertFile';
+chai.use(chaiAsPromised);
 
 const upperCaseRule = (file) => file.toUpperCase();
 
@@ -28,72 +30,67 @@ describe('batchFileRenamer', () => {
     it('should rename a single file using basic rule', () => {
         const oldfile = 'testfile1'
         const expected = 'TEST_FILE_ONE'
-
-        return batchFileRenamer({
+        const promise = batchFileRenamer({
             rule: () => expected,
             argv: [ oldfile ]
-        }).then(() => {
-            assertFile.moved(oldfile, expected);
-        }).catch(err => {
-            assert(!err, 'Function should not error: ' + err);
         });
+        return promise.then(() => assertFile.moved(oldfile, expected));
     });
 
     it('should be able to rename files to new filenames based on rule', () => {
         const oldfiles = [ 'testfile1', 'testfile2', 'testfile3' ]
         const expected = [ 'TESTFILE1', 'TESTFILE2', 'TESTFILE3' ]
-
-        return batchFileRenamer({
+        const promise = batchFileRenamer({
             rule: upperCaseRule,
             argv: oldfiles
-        }).then(() => {
-            _.each(expected, (newfile, i) => assertFile.moved(oldfiles[i], newfile));
-        }).catch(err => {
-            assert(!err, 'Function should not error: ', err)
         });
+        return promise.then(() =>
+            Promise.all(_.map(expected, (newfile, i) => assertFile.moved(oldfiles[i], newfile))));
     });
 
     it('should be able to use async rule', () => {
         const oldfiles = [ 'testfile1', 'testfile2', 'testfile3' ]
         const expected = [ 'TESTFILE1', 'TESTFILE2', 'TESTFILE3' ]
         const asyncRule = (file, options, callback) => _.defer(callback, null, file.toUpperCase())
-
-        return batchFileRenamer({
+        const promise = batchFileRenamer({
             rule: asyncRule,
             argv: oldfiles
-        }).then(() => {
-            _.each(expected, (newfile, i) => assertFile.moved(oldfiles[i], newfile));
-        }).catch(err => {
-            assert(!err, 'Function should not error: ', err);
         });
+        return promise.then(() =>
+            Promise.all(_.map(expected, (newfile, i) => assertFile.moved(oldfiles[i], newfile))));
     });
 
     it('moves existing files', () => {
         const existing = [ 'testfile1', 'testfile2' ];
         const expected = [ 'TESTFILE1', 'TESTFILE2' ];
         const oldfiles =[ ...existing, 'this-file-does-not-exist' ];
-        return batchFileRenamer({
+        const promise = batchFileRenamer({
             rule: upperCaseRule,
             argv: oldfiles
-        }).then(() => {
-            _.each(expected, (newfile, i) => assertFile.moved(oldfiles[i], newfile));
-        }).catch(err => {
-            assert(!err, 'Function should not error: ', err);
         });
+        return promise.then(() =>
+            Promise.all(_.map(expected, (newfile, i) => assertFile.moved(oldfiles[i], newfile))));
     });
 
-    it('does not move any files if src file does not exist and error-on-missing-files flag passed', () => {
+    it('throws error if src file does not exist and error-on-missing-files flag passed', () => {
         const existing = [ 'testfile1', 'testfile2' ];
         const oldfiles = existing.concat([ 'this-file-does-not-exist' ]);
         const flags = [ '--error-on-missing-file' ];
-        return batchFileRenamer({
+        const promise = batchFileRenamer({
             rule: upperCaseRule,
             argv: [...flags, ...oldfiles]
-        }).then(() => {
-            throw "Function should not complete";
-        }).catch(err => {
-            assert(err, 'Function should error');
-            _.each(existing, (oldfile) => assertFile.unmoved(oldfile));
         });
+        return assert.isRejected(promise);
+    });
+    it('does not move any files if file does not exist and error-on-missing-files flag passed', function () {
+        const existing = [ 'testfile1', 'testfile2' ];
+        const oldfiles = existing.concat([ 'this-file-does-not-exist' ]);
+        const flags = [ '--error-on-missing-file' ];
+        const promise = batchFileRenamer({
+            rule: upperCaseRule,
+            argv: [...flags, ...oldfiles]
+        });
+        return promise.catch(err =>
+             Promise.all(_.map(existing, (oldfile) => assertFile.unmoved(oldfile))));
     });
 });

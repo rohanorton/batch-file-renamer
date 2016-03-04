@@ -29,9 +29,9 @@ describe('fsRenamer', () => {
             [ 'testfile1', 'foobarbaz' ],
             [ 'testfile2', 'bazbarfoo' ]
         ];
-        return fsRenamer(pairs).then(() => {
-            return Promise.all(_.map(pairs, ([ oldfile, newfile ]) => assertFile.moved(oldfile, newfile)));
-        });
+        const promise = fsRenamer(pairs);
+        return promise.then(() =>
+            Promise.all(_.map(pairs, ([ oldfile, newfile ]) => assertFile.moved(oldfile, newfile))));
     });
 
     it('does not error on empty array', () => {
