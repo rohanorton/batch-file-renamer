@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import { _, flow, last, isNil } from 'lodash';
 import assert from 'assert';
 
 const validateArgs = (sourcenames, destnames) => {
@@ -10,11 +10,15 @@ const validateArgs = (sourcenames, destnames) => {
 const identicalSourceAndDest = ([sourcename, destname]) =>
     sourcename === destname;
 
+const missingDest =
+    flow(last, isNil);
+
 const argsBuilder = (sourcenames, destnames) => {
     validateArgs(sourcenames, destnames);
     return _(sourcenames)
         .zip(destnames)
         .reject(identicalSourceAndDest)
+        .reject(missingDest)
         .uniqBy(JSON.stringify)
         .value();
 }

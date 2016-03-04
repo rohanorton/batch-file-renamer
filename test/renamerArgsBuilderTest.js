@@ -21,6 +21,12 @@ describe('renamerArgsBuilder', () => {
         assert.deepEqual(actual, expected);
     });
 
+    it('removes pairs where dest is null', () => {
+        const actual = renamerArgsBuilder([ 'old1', 'old2', 'old3' ], [ 'new1', null, 'new3']);
+        const expected = [ [ 'old1', 'new1' ], [ 'old3', 'new3'] ];
+        assert.deepEqual(actual, expected);
+    });
+
     // Asserts:
     it('throws error if source array unspecified', () => {
         const fn = () => renamerArgsBuilder(null, [ 'new1' ]);
