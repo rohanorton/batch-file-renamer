@@ -1,4 +1,4 @@
-import { _, every, isString } from 'lodash';
+import { _, every, some, isEmpty, isString } from 'lodash';
 import assert from 'assert';
 
 const validateArgs = (sourcenames, destnames) => {
@@ -15,12 +15,16 @@ const identicalSourceAndDest = ([src, dest]) =>
 const onlyStrings = (pair) =>
     every(pair, isString);
 
+const emptyStrings = (pair) =>
+    some(pair, isEmpty);
+
 const argsBuilder = (sourcenames, destnames) => {
     validateArgs(sourcenames, destnames);
     return _(sourcenames)
         .zip(destnames)
         .reject(identicalSourceAndDest)
         .filter(onlyStrings)
+        .reject(emptyStrings)
         .uniqBy(JSON.stringify)
         .value();
 }
