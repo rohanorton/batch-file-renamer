@@ -1,4 +1,4 @@
-import { _, partial, flow, last, isNil } from 'lodash';
+import { _, some, isNil } from 'lodash';
 import assert from 'assert';
 
 const validateArgs = (sourcenames, destnames) => {
@@ -11,16 +11,16 @@ const validateArgs = (sourcenames, destnames) => {
 const identicalSourceAndDest = ([src, dest]) =>
     src === dest;
 
-// checks for [ 'file', null ]
-const missingDest =
-    flow(last, isNil);
+// checks for [ 'file', null ] or [ null, 'file' ]
+const missingElement = (pair) =>
+    some(pair, isNil);
 
 const argsBuilder = (sourcenames, destnames) => {
     validateArgs(sourcenames, destnames);
     return _(sourcenames)
         .zip(destnames)
         .reject(identicalSourceAndDest)
-        .reject(missingDest)
+        .reject(missingElement)
         .uniqBy(JSON.stringify)
         .value();
 }
