@@ -3,7 +3,9 @@ import mock from 'mock-fs';
 import _ from 'lodash';
 import * as assertFile from './utils/assertFile';
 import fsRenamer from '../src/fsRenamer';
-import assert from 'assert';
+import chai, { assert } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+chai.use(chaiAsPromised);
 
 const testDirectory = {
     testfile1: 'content of testfile1',
@@ -27,28 +29,22 @@ describe('fsRenamer', () => {
             [ 'testfile1', 'foobarbaz' ],
             [ 'testfile2', 'bazbarfoo' ]
         ];
-
         return fsRenamer(pairs).then(() => {
-            _.each(pairs, ([ oldfile, newfile ]) => assertFile.moved(oldfile, newfile));
+            return Promise.all(_.map(pairs, ([ oldfile, newfile ]) => assertFile.moved(oldfile, newfile)));
         });
     });
 
     it('does not error on empty array', () => {
-        return fsRenamer([]);
+        const promise = fsRenamer([]);
+        return assert.isFulfilled(promise);
     });
 
     it('returns error if source does not exist', () => {
         const pairs = [
             [ 'this-file-doesnt-exist', 'foobarbaz' ]
         ];
-
-        return fsRenamer(pairs)
-            .then(() => {
-                throw 'Should not return';
-            })
-            .catch(err => {
-                assert(err, 'Should return an error');
-            })
+        const promise = fsRenamer(pairs);
+        return assert.isRejected(promise);
     });
 
     // what should it do if we have same destination filename in there multiple times?
