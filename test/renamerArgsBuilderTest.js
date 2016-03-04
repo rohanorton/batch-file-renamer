@@ -34,6 +34,12 @@ describe('renamerArgsBuilder', () => {
         assert.deepEqual(actual, expected);
     });
 
+    it('removes pairs where an element is not a string', () => {
+        const actual = renamerArgsBuilder([ 'old1', [], 'old3' ], [ 'new1', 'new2', 3]);
+        const expected = [ [ 'old1', 'new1' ] ];
+        assert.deepEqual(actual, expected);
+    });
+
     // Asserts:
     it('throws error if source array unspecified', () => {
         const fn = () => renamerArgsBuilder(null, [ 'new1' ]);

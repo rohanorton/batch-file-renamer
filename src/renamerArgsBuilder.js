@@ -1,4 +1,4 @@
-import { _, some, isNil } from 'lodash';
+import { _, every, isString } from 'lodash';
 import assert from 'assert';
 
 const validateArgs = (sourcenames, destnames) => {
@@ -12,15 +12,15 @@ const identicalSourceAndDest = ([src, dest]) =>
     src === dest;
 
 // checks for [ 'file', null ] or [ null, 'file' ]
-const missingElement = (pair) =>
-    some(pair, isNil);
+const onlyStrings = (pair) =>
+    every(pair, isString);
 
 const argsBuilder = (sourcenames, destnames) => {
     validateArgs(sourcenames, destnames);
     return _(sourcenames)
         .zip(destnames)
         .reject(identicalSourceAndDest)
-        .reject(missingElement)
+        .filter(onlyStrings)
         .uniqBy(JSON.stringify)
         .value();
 }
