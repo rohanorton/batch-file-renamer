@@ -7,7 +7,7 @@ import batchFileRenamer from '../src';
 import * as assertFile from './utils/assertFile';
 chai.use(chaiAsPromised);
 
-const upperCaseRule = (file) => file.toUpperCase();
+const upperCaseRule = (filename) => filename.toUpperCase();
 
 const testDirectory = {
     testfile1: 'content of testfile1',
@@ -27,7 +27,7 @@ afterEach(() => {
 
 describe('batchFileRenamer', () => {
 
-    it('should rename a single file using basic rule', () => {
+    it('can rename a single file using basic rule', () => {
         const oldfile = 'testfile1'
         const expected = 'TEST_FILE_ONE'
         const promise = batchFileRenamer({
@@ -37,7 +37,7 @@ describe('batchFileRenamer', () => {
         return promise.then(() => assertFile.moved(oldfile, expected));
     });
 
-    it('should be able to rename files to new filenames based on rule', () => {
+    it('is able to rename files to new filenames based on rule', () => {
         const oldfiles = [ 'testfile1', 'testfile2', 'testfile3' ]
         const expected = [ 'TESTFILE1', 'TESTFILE2', 'TESTFILE3' ]
         const promise = batchFileRenamer({
@@ -48,7 +48,7 @@ describe('batchFileRenamer', () => {
             Promise.all(_.map(expected, (newfile, i) => assertFile.moved(oldfiles[i], newfile))));
     });
 
-    it('should be able to use async rule', () => {
+    it('is able to use async rule', () => {
         const oldfiles = [ 'testfile1', 'testfile2', 'testfile3' ]
         const expected = [ 'TESTFILE1', 'TESTFILE2', 'TESTFILE3' ]
         const asyncRule = (file, options, callback) => _.defer(callback, null, file.toUpperCase())
