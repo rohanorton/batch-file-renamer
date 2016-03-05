@@ -93,4 +93,15 @@ describe('batchFileRenamer', () => {
         return promise.catch(err =>
              Promise.all(_.map(existing, (oldfile) => assertFile.unmoved(oldfile))));
     });
+    it('creates new directories', function () {
+        const existing = [ 'testfile1', 'testfile2' ];
+        const expected = [ 'foo/bar/testfile1', 'foo/bar/testfile2' ];
+        const rule = (filename) => `foo/bar/${filename}`;
+        const promise = batchFileRenamer({
+            rule: rule,
+            argv: existing
+        });
+        return promise.then(() =>
+             Promise.all(_.map(existing, (oldfile, i) => assertFile.moved(oldfile, expected[i]))));
+    });
 });

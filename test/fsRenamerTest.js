@@ -47,5 +47,13 @@ describe('fsRenamer', () => {
         return assert.isRejected(promise);
     });
 
+    it('can create new directories', () => {
+        const pairs = [
+            [ 'testfile1', 'foo/bar/testfile1' ]
+        ];
+        const promise = fsRenamer(pairs);
+        return assert.isFulfilled(promise);
+    });
+
     // what should it do if we have same destination filename in there multiple times?
 });

@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "es6-promisify": "^3.0.0",
-    "fs-promise": "^0.4.1",
+    "fs-promise": "^0.5.0",
     "has-callback": "0.0.3",
     "lodash": "^4.5.1",
     "yargs-builder": "0.0.1"
