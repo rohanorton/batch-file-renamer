@@ -2,7 +2,14 @@ import fs from 'fs-promise';
 
 let fsRenamer = async (pairs) => {
     for (let pair of pairs) {
-        await fs.move(...pair);
+        try {
+            await fs.move(...pair);
+        } catch (err) {
+            if (err.code === 'EEXIST') {
+            } else {
+                throw err;
+            }
+        }
     }
 }
 

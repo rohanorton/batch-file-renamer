@@ -104,4 +104,13 @@ describe('batchFileRenamer', () => {
         return promise.then(() =>
              Promise.all(_.map(existing, (oldfile, i) => assertFile.moved(oldfile, expected[i]))));
     });
+    it('does not move file if dest file exists', () => {
+        const existing = [ 'testfile1' ];
+        const promise = batchFileRenamer({
+            rule: () => 'testfile2',
+            argv: existing
+        });
+        return promise.then(() =>
+             Promise.all(_.map(existing, (oldfile) => assertFile.unmoved(oldfile))));
+    });
 });
