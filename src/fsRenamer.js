@@ -1,6 +1,7 @@
 import fs from 'fs-promise';
 import uuid from 'uuid';
 import _ from 'lodash';
+import {FORCE, BACKUP} from './flags';
 
 let createTempFilename = (filename) =>
     `/tmp/${filename}-${uuid.v4()}`;
@@ -33,7 +34,7 @@ let moveToTemp = async (mediated) => {
 let moveToDest = async (mediated, options) => {
     for (const [ src, tmp, dest ] of mediated) {
         try {
-            await fs.move(tmp, dest, { clobber: options.force });
+            await fs.move(tmp, dest, { clobber: options[FORCE] });
         } catch (err) {
             if (err.code === 'EEXIST') {
                 await fs.move(tmp, src);
@@ -47,7 +48,7 @@ let moveToDest = async (mediated, options) => {
 
 let fsRenamer = async (pairs, options = {}) => {
     let mediated = createMediation(pairs);
-    if (options.backup) {
+    if (options[BACKUP]) {
         await backup(mediated);
     }
     await moveToTemp(mediated);
