@@ -104,7 +104,7 @@ describe('batchFileRenamer', () => {
         return promise.then(() =>
              Promise.all(_.map(existing, (oldfile, i) => assertFile.moved(oldfile, expected[i]))));
     });
-    it('does not move file if dest file exists', () => {
+    it('does not overwrite existing file', () => {
         const existing = [ 'testfile1' ];
         const promise = batchFileRenamer({
             rule: () => 'testfile2',
@@ -114,7 +114,7 @@ describe('batchFileRenamer', () => {
              Promise.all(_.map(existing, (oldfile) => assertFile.unmoved(oldfile))));
     });
 
-    it('moves file despite existing if passed force flag', () => {
+    it('overwrites existing file if passed force flag', () => {
         const existing = [ 'testfile1' ];
         const expected = 'testfile2';
         const flags = [ '--force' ];

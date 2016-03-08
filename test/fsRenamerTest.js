@@ -56,7 +56,7 @@ describe('fsRenamer', () => {
             Promise.all(_.map(pairs, ([ oldfile, newfile ]) => assertFile.moved(oldfile, newfile))));
     });
 
-    it('does not move file if destination file exists', () => {
+    it('does not overwrite existing file', () => {
         const pairs = [
             [ 'testfile1', 'testfile2' ]
         ];
