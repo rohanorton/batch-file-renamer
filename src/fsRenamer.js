@@ -1,9 +1,16 @@
 import fs from 'fs-promise';
 
+let backup = async (file) => {
+    await fs.copy(file, file + '.bak');
+}
+
 let fsRenamer = async (pairs, options = {}) => {
-    for (let pair of pairs) {
+    for (const [ src, dest ] of pairs) {
         try {
-            await fs.move(...pair, { clobber: options.force });
+            if (options.backup) {
+                await backup(src);
+            }
+            await fs.move(src, dest, { clobber: options.force });
         } catch (err) {
             if (err.code === 'EEXIST') {
             } else {
