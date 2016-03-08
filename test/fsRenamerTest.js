@@ -64,5 +64,14 @@ describe('fsRenamer', () => {
         return promise.then(() =>
             Promise.all(_.map(pairs, ([ oldfile, newfile ]) => assertFile.unmoved(oldfile))));
     });
+
+    it('overwrites existing file if passed force flag', () => {
+        const pairs = [
+            [ 'testfile1', 'testfile2' ]
+        ];
+        const promise = fsRenamer(pairs, { force: true });
+        return promise.then(() =>
+            Promise.all(_.map(pairs, ([ oldfile, newfile ]) => assertFile.moved(oldfile, newfile))));
+    });
     // what should it do if we have same destination filename in there multiple times?
 });
