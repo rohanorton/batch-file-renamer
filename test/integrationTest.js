@@ -125,6 +125,17 @@ describe('batchFileRenamer', () => {
         return promise.then(() =>
              Promise.all(_.map(existing, (oldfile, i) => assertFile.moved(oldfile, expected))));
     });
+    it('overwrites existing file if passed force flag alias', () => {
+        const existing = [ 'testfile1' ];
+        const expected = 'testfile2';
+        const flags = [ '-f' ];
+        const promise = batchFileRenamer({
+            rule: () => expected,
+            argv: [ ...flags, ...existing ]
+        });
+        return promise.then(() =>
+             Promise.all(_.map(existing, (oldfile, i) => assertFile.moved(oldfile, expected))));
+    });
     it('creates backup when passed backup flag', () => {
         const oldfile = 'testfile1';
         const backup = oldfile + '.bak';

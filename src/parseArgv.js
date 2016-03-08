@@ -5,7 +5,7 @@ const parseArgv = (argv) => {
     const defaults = {
         options: {
             [ERROR_ON_MISSING_FILE]: { default: false, describe: 'Fail if any source file missing', type: 'boolean' },
-            [FORCE]: { default: false, describe: 'Overwrite existing files', type: 'boolean' },
+            [FORCE]: { default: false, alias: 'f', describe: 'Overwrite existing files', type: 'boolean' },
             [BACKUP]: { default: false, describe: 'Create backup of file', type: 'boolean' }
         }
     };
