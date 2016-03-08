@@ -15,7 +15,7 @@ const identicalSourceAndDest = ([src, dest]) =>
 const onlyStrings = (pair) =>
     every(pair, isString);
 
-const emptyStrings = (pair) =>
+const anyEmptyStrings = (pair) =>
     some(pair, isEmpty);
 
 const argsBuilder = (sourcenames, destnames) => {
@@ -24,7 +24,7 @@ const argsBuilder = (sourcenames, destnames) => {
         .zip(destnames)
         .reject(identicalSourceAndDest)
         .filter(onlyStrings)
-        .reject(emptyStrings)
+        .reject(anyEmptyStrings)
         .uniqBy(JSON.stringify)
         .value();
 }
