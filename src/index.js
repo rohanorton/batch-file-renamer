@@ -20,7 +20,7 @@ const batchFileRenamer = async ({ rule, argv }) => {
     }
 
     let pairs = renamerArgsBuilder(oldnames, newnames);
-    await fsRenamer(pairs);
+    await fsRenamer(pairs, options);
 }
 
 export default batchFileRenamer;
