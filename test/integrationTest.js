@@ -151,4 +151,18 @@ describe('batchFileRenamer', () => {
                  assertFile.moved(oldfile, backup)
              ]))
     });
+    it('can do cyclical rename', () => {
+        const existing = [ 'testfile1', 'testfile2', 'testfile3' ]
+        const expected = [ 'testfile2', 'testfile3', 'testfile1' ]
+        const rule = (old) => {
+            const i = existing.indexOf(old);
+            return expected[i];
+        };
+        const promise = batchFileRenamer({
+            rule,
+            argv: existing
+        });
+        return promise.then(() =>
+             Promise.all(_.map(existing, (oldfile, i) => assertFile.moved(oldfile, expected[i], { noSrcMove: true }))));
+    });
 });
