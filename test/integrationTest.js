@@ -3,7 +3,7 @@ import mock from 'mock-fs';
 import _ from 'lodash';
 import chai, { assert } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import batchFileRenamer from '../src';
+import { batchFileRenamer } from '../src';
 import * as assertFile from './utils/assertFile';
 chai.use(chaiAsPromised);
 

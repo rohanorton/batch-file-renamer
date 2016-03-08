@@ -5,6 +5,7 @@ import parseArgv from './parseArgv';
 import renamerArgsBuilder from './renamerArgsBuilder';
 import fsRenamer from './fsRenamer';
 import getExistingFilenames from './getExistingFilenames';
+import errorHandler from './errorHandler';
 
 const batchFileRenamer = async ({ rule, argv }) => {
     rule = hasCallback(rule) ? promisify(rule) : rule;
@@ -23,4 +24,6 @@ const batchFileRenamer = async ({ rule, argv }) => {
     await fsRenamer(pairs, options);
 }
 
-export default batchFileRenamer;
+export { batchFileRenamer };
+export default (args) =>
+    batchFileRenamer(args).catch(errorHandler(args));

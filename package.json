@@ -32,6 +32,7 @@
     "mock-fs": "^3.7.0"
   },
   "dependencies": {
+    "chalk": "^1.1.1",
     "es6-promisify": "^3.0.0",
     "fs-promise": "^0.5.0",
     "has-callback": "0.0.3",
