@@ -23,14 +23,14 @@ const assertFileContent = (newfile, oldfile, message) => {
     return assert.becomes(newfilecontent, oldfilecontent, message);
 }
 
-const moved = (oldfile, newfile) => {
+const moved = (oldfile, newfile, opts = {}) => {
     const assertions = [
         // check locations of files
-        doesntExist(oldfile, 'source file should no longer exist after function call: ' + oldfile),
+        opts.noSrcMove || doesntExist(oldfile, 'source file should no longer exist after function call: ' + oldfile),
         exists(newfile, 'file destination should exist after function call: ' + newfile),
 
         // check contents of files
-        assertFileContent(newfile, oldfile, 'content of new file should be same as old')
+        assertFileContent(newfile, oldfile, `content of new (${newfile}) file should be same as old (${oldfile})`)
     ];
     return Promise.all(assertions);
 };

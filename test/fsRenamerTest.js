@@ -89,6 +89,17 @@ describe('fsRenamer', () => {
             ]));
     });
 
+    it('can perform cyclical rename', () => {
+        const pairs = [
+            [ 'testfile1', 'testfile2' ],
+            [ 'testfile2', 'testfile3' ],
+            [ 'testfile3', 'testfile1' ]
+        ];
+        const promise = fsRenamer(pairs);
+        return promise.then(() =>
+            Promise.all(_.map(pairs, ([ oldfile, newfile ]) => assertFile.moved(oldfile, newfile, { noSrcMove: true }))));
+    });
+
 
     // what should it do if we have same destination filename in there multiple times?
 });
