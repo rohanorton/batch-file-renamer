@@ -2,7 +2,7 @@ import chalk from 'chalk';
 import { get, includes, defaults } from 'lodash';
 import {DEBUG} from './flags';
 
-const formatMessage = (err, options = {}) => {
+const formatMessage = (err, args = {}) => {
     const codes = defaults({
         ENOENT: 'No such file or directory: ' + err.path
     }, args.errorMessages);
@@ -13,7 +13,7 @@ const errorHandler = (args = {}) => {
     const debug = includes(args.argv, `--${DEBUG}`);
     return (err) => {
         console.log(chalk.red('Error:'))
-        console.log(chalk.red(formatMessage(err)));
+        console.log(chalk.red(formatMessage(err, args)));
         if (debug) {
             console.log('');
             console.log(err.stack);
