@@ -3,7 +3,7 @@ import mock from 'mock-fs';
 import _ from 'lodash';
 import chai, { assert } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { batchFileRenamer } from '../src';
+import batchFileRenamer from '../src/batchFileRenamer';
 import * as assertFile from './utils/assertFile';
 chai.use(chaiAsPromised);
 
@@ -113,7 +113,6 @@ describe('batchFileRenamer', () => {
         return promise.then(() =>
              Promise.all(_.map(existing, (oldfile) => assertFile.unmoved(oldfile))));
     });
-
     it('overwrites existing file if passed force flag', () => {
         const existing = [ 'testfile1' ];
         const expected = 'testfile2';
