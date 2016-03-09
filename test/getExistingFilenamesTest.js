@@ -22,22 +22,22 @@ afterEach(() => {
 });
 
 describe('getExistingFilenames', () => {
-    it('should callback with array of all files if all source files exist', () => {
+    it('returns array of all files if all source files exist', () => {
         const files = [ 'testfile1', 'testfile2', 'testfile3' ];
         const expected = files;
         const promise = getExistingFilenames(files);
         return assert.becomes(promise, expected);
     });
-    it('should error if files do not exist', () => {
-        const files = [ 'testfile1', 'this-is-made-up', 'testfile2', 'testfile3', 'oops-another-made-up-file' ];
-        const promise = getExistingFilenames(files);
-        return assert.isRejected(promise);
-    });
-    it('should not error if file does not exist and passed { "ignore-missing-file": true } option', () => {
+    it('returns array with non-existent files removed', () => {
         const files = [ 'testfile1', 'this-is-made-up', 'testfile2', 'testfile3', 'oops-another-made-up-file' ];
         const expected = [ 'testfile1', 'testfile2', 'testfile3' ];
-        const options = { 'ignore-missing-file': true };
-        const promise = getExistingFilenames(files, options);
+        const promise = getExistingFilenames(files);
         return assert.becomes(promise, expected);
+    });
+    it('throws error if non-existent files and passed error-on-missing-file option', () => {
+        const files = [ 'testfile1', 'this-is-made-up', 'testfile2', 'testfile3', 'oops-another-made-up-file' ];
+        const options = { 'error-on-missing-file': true };
+        const promise = getExistingFilenames(files, options);
+        return assert.isRejected(promise, /ENOENT/);
     });
 });

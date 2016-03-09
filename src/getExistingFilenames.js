@@ -2,7 +2,7 @@ import fs from 'fs-promise';
 
 import {ERROR_ON_MISSING_FILE} from './flags';
 
-const getExistingFilenames = async (filenames, options) => {
+const getExistingFilenames = async (filenames, options = {}) => {
     let memo = [];
     for (let filename of filenames) {
         try {
