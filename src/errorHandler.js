@@ -9,12 +9,14 @@ const formatMessage = (err, args = {}) => {
     return codes[err.code] || err.message;
 }
 
+const isDebugging = () =>
+    includes(process.argv, `--${DEBUG}`);
+
 const errorHandler = (args = {}) => {
-    const debug = includes(args.argv, `--${DEBUG}`);
     return (err) => {
         console.log(chalk.red('Error:'))
         console.log(chalk.red(formatMessage(err, args)));
-        if (debug) {
+        if (isDebugging()) {
             console.log('');
             console.log(err.stack);
             console.log('');

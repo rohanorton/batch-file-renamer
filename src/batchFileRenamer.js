@@ -9,6 +9,7 @@ import map from './promiseMap';
 
 
 const batchFileRenamer = async ({ rule, argv, cliOptions }) => {
+    argv = argv || process.argv.slice(2);
     const [filenames, options] = parseArgv(argv, cliOptions);
     rule = hasCallback(rule) ? promisify(rule) : rule;
 
