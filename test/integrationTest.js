@@ -75,7 +75,7 @@ describe('batchFileRenamer', () => {
     it('throws error if src file does not exist and error-on-missing-files flag passed', () => {
         const existing = [ 'testfile1', 'testfile2' ];
         const oldfiles = existing.concat([ 'this-file-does-not-exist' ]);
-        const flags = [ '--error-on-missing-file' ];
+        const flags = [ '--error-on-missing' ];
         const promise = batchFileRenamer({
             rule: upperCaseRule,
             argv: [...flags, ...oldfiles]

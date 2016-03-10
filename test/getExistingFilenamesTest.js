@@ -34,9 +34,9 @@ describe('getExistingFilenames', () => {
         const promise = getExistingFilenames(files);
         return assert.becomes(promise, expected);
     });
-    it('throws error if non-existent files and passed error-on-missing-file option', () => {
+    it('throws error if non-existent files and passed error-on-missing option', () => {
         const files = [ 'testfile1', 'this-is-made-up', 'testfile2', 'testfile3', 'oops-another-made-up-file' ];
-        const options = { 'error-on-missing-file': true };
+        const options = { 'error-on-missing': true };
         const promise = getExistingFilenames(files, options);
         return assert.isRejected(promise, /ENOENT/);
     });
