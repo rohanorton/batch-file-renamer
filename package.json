@@ -38,6 +38,6 @@
     "has-callback": "0.0.3",
     "lodash": "^4.5.1",
     "uuid": "^2.0.1",
-    "yargs-builder": "0.0.1"
+    "yargs": "^4.2.0"
   }
 }

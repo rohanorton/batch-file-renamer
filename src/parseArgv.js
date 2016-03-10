@@ -1,17 +1,22 @@
-import yargsBuilder from 'yargs-builder';
+import yargs from 'yargs';
 import {ERROR_ON_MISSING_FILE, FORCE, BACKUP} from './flags';
-import { defaults } from 'lodash';
+import mergeOptions from './optionsMerger';
 
-const parseArgv = (argv, custom) => {
+
+const parseArgv = (argv, custom = {}) => {
     const standard = {
-        options: {
-            [ERROR_ON_MISSING_FILE]: { default: false, describe: 'Fail if any source file missing', type: 'boolean' },
-            [FORCE]: { default: false, alias: 'f', describe: 'Overwrite existing files', type: 'boolean' },
-            [BACKUP]: { default: false, describe: 'Create backup of file', type: 'boolean' }
-        }
+        [FORCE]: { alias: 'f', describe: 'Overwrite existing files', type: 'boolean' },
+        [BACKUP]: { describe: 'Create backup of file', type: 'boolean' },
+        [ERROR_ON_MISSING_FILE]: { describe: 'Fail if any source file missing', type: 'boolean' }
     };
-    const args = yargsBuilder(defaults(standard, custom), argv).argv;
-    return [ args._, args ];
+    const options = mergeOptions(custom.options, standard);
+    const parsed = yargs(argv)
+        .options(options)
+        .help('h').alias('help', 'h')
+        .version().alias('version', 'V')
+        .argv;
+
+    return [ parsed._, parsed ];
 }
 
 export default parseArgv;
