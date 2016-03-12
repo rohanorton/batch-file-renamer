@@ -36,6 +36,7 @@
     "es6-promisify": "^3.0.0",
     "fs-promise": "^0.5.0",
     "has-callback": "0.0.3",
+    "keypress-prompt": "^0.3.2",
     "lodash": "^4.5.1",
     "uuid": "^2.0.1",
     "yargs": "^4.2.0"

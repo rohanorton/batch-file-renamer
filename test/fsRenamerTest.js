@@ -2,10 +2,12 @@
 import mock from 'mock-fs';
 import _ from 'lodash';
 import * as assertFile from './utils/assertFile';
-import fsRenamer from '../src/fsRenamer';
+import mockPrompter from './utils/mockPrompter';
+import fsRenamer  from '../src/fsRenamer';
 import chai, { assert } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
+
 
 const testDirectory = {
     testfile1: 'content of testfile1',
@@ -100,6 +102,29 @@ describe('fsRenamer', () => {
             Promise.all(_.map(pairs, ([ oldfile, newfile ]) => assertFile.moved(oldfile, newfile, { noSrcMove: true }))));
     });
 
+    it('prompts for to rename files if passed interactive flag', () => {
+        const oldfile = 'testfile1';
+        const pairs = [
+            [ oldfile, 'somefile' ],
+        ];
+        const options = { interactive: true };
+        fsRenamer.__inject(mockPrompter('n'))
+        const promise = fsRenamer(pairs, options, mockPrompter('n'));
+        return promise.then(() => assertFile.unmoved(oldfile));
+    });
 
-    // what should it do if we have same destination filename in there multiple times?
+    it('prompts for to rename files if passed interactive flag', () => {
+        const pairs = [
+            [ 'testfile1', 'not-renamed' ],
+            [ 'testfile2', 'renamed' ],
+        ];
+        const options = { interactive: true };
+        fsRenamer.__inject(mockPrompter('n', 'y'))
+        const promise = fsRenamer(pairs, options);
+        return promise.then(() =>
+            Promise.all([
+                assertFile.unmoved(pairs[0][0], pairs[0][1]),
+                assertFile.moved(pairs[1][0], pairs[1][1])
+            ]))
+    });
 });
