@@ -75,8 +75,12 @@ let fsRenamer = async (pairs, options = {}) => {
 }
 
 // dependency injection for testing purposes:
-fsRenamer.__inject = (injectedPrompt) => {
-    prompt = injectedPrompt || prompt
+fsRenamer.inject = (injectedPrompt) => {
+    prompt = injectedPrompt;
+}
+
+fsRenamer.resetDependencies = () => {
+    prompt = keypressPrompt.prompt;
 }
 
 export default fsRenamer;

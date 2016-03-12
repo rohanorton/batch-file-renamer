@@ -21,6 +21,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+    fsRenamer.resetDependencies();
     mock.restore()
     assertFile.teardown();
 });
@@ -110,7 +111,7 @@ describe('fsRenamer', () => {
         ];
         const options = { interactive: true };
         // use dependency injection to simulate keypress prompt library:
-        fsRenamer.__inject(mockPrompter('y', 'n', 'y'));
+        fsRenamer.inject(mockPrompter('y', 'n', 'y'));
         const promise = fsRenamer(pairs, options);
         return promise.then(() =>
             Promise.all([
