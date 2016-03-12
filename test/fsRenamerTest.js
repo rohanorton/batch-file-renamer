@@ -106,14 +106,17 @@ describe('fsRenamer', () => {
         const pairs = [
             [ 'testfile1', 'not-renamed' ],
             [ 'testfile2', 'renamed' ],
+            [ 'testfile3', 'alsorenamed' ]
         ];
         const options = { interactive: true };
-        fsRenamer.__inject(mockPrompter('n', 'y'))
+        // use dependency injection to simulate keypress prompt library:
+        fsRenamer.__inject(mockPrompter('y', 'n', 'y'));
         const promise = fsRenamer(pairs, options);
         return promise.then(() =>
             Promise.all([
-                assertFile.unmoved(pairs[0][0], pairs[0][1]),
-                assertFile.moved(pairs[1][0], pairs[1][1])
+                assertFile.moved(pairs[0][0], pairs[0][1]),
+                assertFile.unmoved(pairs[1][0], pairs[1][1]),
+                assertFile.moved(pairs[2][0], pairs[2][1])
             ]))
     });
 });
