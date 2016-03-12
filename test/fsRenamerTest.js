@@ -103,17 +103,6 @@ describe('fsRenamer', () => {
     });
 
     it('prompts for to rename files if passed interactive flag', () => {
-        const oldfile = 'testfile1';
-        const pairs = [
-            [ oldfile, 'somefile' ],
-        ];
-        const options = { interactive: true };
-        fsRenamer.__inject(mockPrompter('n'))
-        const promise = fsRenamer(pairs, options, mockPrompter('n'));
-        return promise.then(() => assertFile.unmoved(oldfile));
-    });
-
-    it('prompts for to rename files if passed interactive flag', () => {
         const pairs = [
             [ 'testfile1', 'not-renamed' ],
             [ 'testfile2', 'renamed' ],
