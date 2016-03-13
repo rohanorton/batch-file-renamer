@@ -74,41 +74,6 @@ describe('batchFileRenamer', () => {
         }));
     });
 
-    it('renames files if all exist and error-on-missing-files flag passed', () => {
-        const promise = batchFileRenamer({
-            rule: upperCaseRule,
-            argv: [
-                '--error-on-missing',
-                'testfile1', 'testfile2', 'testfile3'
-            ]
-        });
-        return promise.then(() => assertFsResembles({
-            TESTFILE1: 'content of testfile1',
-            TESTFILE2: 'content of testfile2',
-            TESTFILE3: 'content of testfile3'
-        }));
-    });
-
-    it('throws error if src file does not exist and error-on-missing-files flag passed', () => {
-        const promise = batchFileRenamer({
-            rule: upperCaseRule,
-            argv: [
-                '--error-on-missing',
-                'testfile1', 'testfile2', 'this-file-does-not-exist'
-            ]
-        });
-        return assert.isRejected(promise);
-    });
-    it('does not move any files if file does not exist and error-on-missing-files flag passed', function () {
-        const promise = batchFileRenamer({
-            rule: upperCaseRule,
-            argv: [
-                '--error-on-missing',
-                'testfile1', 'testfile2', 'this-file-does-not-exist'
-            ]
-        });
-        return promise.catch(err => assertFsResembles(testDirectory));
-    });
     it('creates new directories', function () {
         const promise = batchFileRenamer({
             rule: (filename) => `foo/bar/${filename}`,
@@ -124,6 +89,7 @@ describe('batchFileRenamer', () => {
             testfile3: 'content of testfile3'
         }));
     });
+
     it('does not overwrite existing file', () => {
         const promise = batchFileRenamer({
             rule: () => 'testfile2',
@@ -131,39 +97,7 @@ describe('batchFileRenamer', () => {
         });
         return promise.then(() => assertFsResembles(testDirectory));
     });
-    it('overwrites existing file if passed force flag', () => {
-        const promise = batchFileRenamer({
-            rule: () => 'testfile2',
-            argv: [ '--force', 'testfile1' ]
-        });
-        return promise.then(() => assertFsResembles({
-            testfile2: 'content of testfile1',
-            testfile3: 'content of testfile3'
-        }));
-    });
-    it('overwrites existing file if passed force flag alias', () => {
-        const promise = batchFileRenamer({
-            rule: () => 'testfile2',
-            argv: [ '-f', 'testfile1' ]
-        });
-        return promise.then(() => assertFsResembles({
-            testfile2: 'content of testfile1',
-            testfile3: 'content of testfile3'
-        }));
-    });
-    it('creates backup when passed backup flag', () => {
-        const flags = [ '--backup' ];
-        const promise = batchFileRenamer({
-            rule: upperCaseRule,
-            argv: [ '--backup', 'testfile1' ]
-        });
-        return promise.then(() => assertFsResembles({
-            'testfile1.bak': 'content of testfile1',
-            TESTFILE1: 'content of testfile1',
-            testfile2: 'content of testfile2',
-            testfile3: 'content of testfile3'
-        }));
-    });
+
     it('can do cyclical rename', () => {
         const existing = [ 'testfile1', 'testfile2', 'testfile3' ]
         const expected = [ 'testfile2', 'testfile3', 'testfile1' ]
@@ -180,5 +114,86 @@ describe('batchFileRenamer', () => {
             testfile2: 'content of testfile1',
             testfile3: 'content of testfile2',
         }));
+    });
+
+    describe('--error-on-missing', () => {
+
+        it('renames files if all exist and error-on-missing-files flag passed', () => {
+            const promise = batchFileRenamer({
+                rule: upperCaseRule,
+                argv: [
+                    '--error-on-missing',
+                    'testfile1', 'testfile2', 'testfile3'
+                ]
+            });
+            return promise.then(() => assertFsResembles({
+                TESTFILE1: 'content of testfile1',
+                TESTFILE2: 'content of testfile2',
+                TESTFILE3: 'content of testfile3'
+            }));
+        });
+
+        it('throws error if src file does not exist and error-on-missing-files flag passed', () => {
+            const promise = batchFileRenamer({
+                rule: upperCaseRule,
+                argv: [
+                    '--error-on-missing',
+                    'testfile1', 'testfile2', 'this-file-does-not-exist'
+                ]
+            });
+            return assert.isRejected(promise);
+        });
+
+        it('does not move any files if file does not exist and error-on-missing-files flag passed', function () {
+            const promise = batchFileRenamer({
+                rule: upperCaseRule,
+                argv: [
+                    '--error-on-missing',
+                    'testfile1', 'testfile2', 'this-file-does-not-exist'
+                ]
+            });
+            return promise.catch(err => assertFsResembles(testDirectory));
+        });
+    });
+
+    describe('--force', () => {
+
+        it('overwrites existing file if passed force flag', () => {
+            const promise = batchFileRenamer({
+                rule: () => 'testfile2',
+                    argv: [ '--force', 'testfile1' ]
+            });
+            return promise.then(() => assertFsResembles({
+                testfile2: 'content of testfile1',
+                testfile3: 'content of testfile3'
+            }));
+        });
+
+        it('overwrites existing file if passed force flag alias', () => {
+            const promise = batchFileRenamer({
+                rule: () => 'testfile2',
+                    argv: [ '-f', 'testfile1' ]
+            });
+            return promise.then(() => assertFsResembles({
+                testfile2: 'content of testfile1',
+                testfile3: 'content of testfile3'
+            }));
+        });
+    });
+
+    describe('--backup', () => {
+        it('creates backup when passed backup flag', () => {
+            const flags = [ '--backup' ];
+            const promise = batchFileRenamer({
+                rule: upperCaseRule,
+                argv: [ '--backup', 'testfile1' ]
+            });
+            return promise.then(() => assertFsResembles({
+                'testfile1.bak': 'content of testfile1',
+                TESTFILE1: 'content of testfile1',
+                testfile2: 'content of testfile2',
+                testfile3: 'content of testfile3'
+            }));
+        });
     });
 });
