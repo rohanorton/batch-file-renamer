@@ -1,7 +1,7 @@
 /*globals it, describe, beforeEach, afterEach */
 import mock from 'mock-fs';
 import _ from 'lodash';
-import * as assertFile from './utils/assertFile';
+import assertFsResembles from './utils/fsResembles';
 import mockPrompter from './utils/mockPrompter';
 import fsRenamer  from '../src/fsRenamer';
 import chai, { assert } from 'chai';
@@ -17,13 +17,11 @@ const testDirectory = {
 
 beforeEach(() => {
     mock(testDirectory);
-    assertFile.setup(testDirectory);
 });
 
 afterEach(() => {
     fsRenamer.resetDependencies();
     mock.restore()
-    assertFile.teardown();
 });
 
 describe('fsRenamer', () => {
@@ -33,8 +31,11 @@ describe('fsRenamer', () => {
             [ 'testfile2', 'bazbarfoo' ]
         ];
         const promise = fsRenamer(pairs);
-        return promise.then(() =>
-            Promise.all(_.map(pairs, ([ oldfile, newfile ]) => assertFile.moved(oldfile, newfile))));
+        return promise.then(() => assertFsResembles({
+            foobarbaz: 'content of testfile1',
+            bazbarfoo: 'content of testfile2',
+            testfile3: 'content of testfile3'
+        }));
     });
 
     it('does not error on empty array', () => {
@@ -55,8 +56,15 @@ describe('fsRenamer', () => {
             [ 'testfile1', 'foo/bar/testfile1' ]
         ];
         const promise = fsRenamer(pairs);
-        return promise.then(() =>
-            Promise.all(_.map(pairs, ([ oldfile, newfile ]) => assertFile.moved(oldfile, newfile))));
+        return promise.then(() => assertFsResembles({
+            foo: {
+                bar: {
+                    testfile1: 'content of testfile1',
+                }
+            },
+            testfile2: 'content of testfile2',
+            testfile3: 'content of testfile3'
+        }));
     });
 
     it('does not overwrite existing file', () => {
@@ -64,8 +72,7 @@ describe('fsRenamer', () => {
             [ 'testfile1', 'testfile2' ]
         ];
         const promise = fsRenamer(pairs);
-        return promise.then(() =>
-            Promise.all(_.map(pairs, ([ oldfile, newfile ]) => assertFile.unmoved(oldfile))));
+        return promise.then(() => assertFsResembles(testDirectory));
     });
 
     it('overwrites existing file if passed force flag', () => {
@@ -73,8 +80,10 @@ describe('fsRenamer', () => {
             [ 'testfile1', 'testfile2' ]
         ];
         const promise = fsRenamer(pairs, { force: true });
-        return promise.then(() =>
-            Promise.all(_.map(pairs, ([ oldfile, newfile ]) => assertFile.moved(oldfile, newfile))));
+        return promise.then(() => assertFsResembles({
+            testfile2: 'content of testfile1',
+            testfile3: 'content of testfile3'
+        }));
     });
 
     it('creates backup when passed backup flag', () => {
@@ -85,11 +94,12 @@ describe('fsRenamer', () => {
             [ oldfile, newfile ]
         ];
         const promise = fsRenamer(pairs, { backup: true });
-        return promise.then(() =>
-            Promise.all([
-                assertFile.moved(oldfile, newfile),
-                assertFile.moved(oldfile, backup)
-            ]));
+        return promise.then(() => assertFsResembles({
+            'testfile1.bak': 'content of testfile1',
+            asdf: 'content of testfile1',
+            testfile2: 'content of testfile2',
+            testfile3: 'content of testfile3'
+        }));
     });
 
     it('can perform cyclical rename', () => {
@@ -99,25 +109,27 @@ describe('fsRenamer', () => {
             [ 'testfile3', 'testfile1' ]
         ];
         const promise = fsRenamer(pairs);
-        return promise.then(() =>
-            Promise.all(_.map(pairs, ([ oldfile, newfile ]) => assertFile.moved(oldfile, newfile, { noSrcMove: true }))));
+        return promise.then(() => assertFsResembles({
+            testfile1: 'content of testfile3',
+            testfile2: 'content of testfile1',
+            testfile3: 'content of testfile2'
+        }));
     });
 
     it('prompts for to rename files if passed interactive flag', () => {
         const pairs = [
-            [ 'testfile1', 'not-renamed' ],
-            [ 'testfile2', 'renamed' ],
+            [ 'testfile1', 'renamed' ],
+            [ 'testfile2', 'notrenamed' ],
             [ 'testfile3', 'alsorenamed' ]
         ];
         const options = { interactive: true };
         // use dependency injection to simulate keypress prompt library:
         fsRenamer.inject(mockPrompter('y', 'n', 'y'));
         const promise = fsRenamer(pairs, options);
-        return promise.then(() =>
-            Promise.all([
-                assertFile.moved(pairs[0][0], pairs[0][1]),
-                assertFile.unmoved(pairs[1][0], pairs[1][1]),
-                assertFile.moved(pairs[2][0], pairs[2][1])
-            ]))
+        return promise.then(() => assertFsResembles({
+            renamed: 'content of testfile1',
+            testfile2: 'content of testfile2',
+            alsorenamed: 'content of testfile3'
+        }));
     });
 });
