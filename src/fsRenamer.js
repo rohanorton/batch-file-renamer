@@ -1,4 +1,5 @@
 import fs from 'fs-promise';
+import path from 'path';
 import uuid from 'uuid';
 import _ from 'lodash';
 import keypressPrompt from 'keypress-prompt';
@@ -7,19 +8,27 @@ import {FORCE, BACKUP, INTERACTIVE} from './flags';
 // assign to variable to enable dependency injection
 let prompt = keypressPrompt.prompt;
 
+const tmpDir = '.tmp';
+
 let createTempFilename = (filename) =>
-    `/tmp/${filename}-${uuid.v4()}`;
+    path.join(tmpDir, `${filename}-${uuid.v4()}`);
 
 let createMediation = (pairs) =>
     _.map(pairs, ([ src, dest ]) => [ src, createTempFilename(src), dest ]);
 
-let resetAll = async (mediated) => {
+let cleanUp = async (mediated) => {
     for (const [ src, tmp ] of mediated) {
         try {
             await fs.move(tmp, src)
         } catch (err) {
             // ignore error
         }
+    }
+    try {
+        // will only remove empty directory:
+        fs.rmdir(tmpDir);
+    } catch (err) {
+        // ignore error
     }
 }
 
@@ -58,7 +67,7 @@ let moveToDest = async (mediated, options) => {
             if (err.code === 'EEXIST') {
                 await fs.move(tmp, src);
             } else {
-                await resetAll(mediated);
+                await cleanUp(mediated);
                 throw err;
             }
         }
@@ -72,6 +81,7 @@ let fsRenamer = async (pairs, options = {}) => {
     }
     await moveToTemp(mediated);
     await moveToDest(mediated, options);
+    await cleanUp(mediated);
 }
 
 // dependency injection for testing purposes:
