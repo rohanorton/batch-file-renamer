@@ -4,7 +4,7 @@ import _ from 'lodash';
 import chai, { assert } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import batchFileRenamer from '../src/batchFileRenamer';
-import * as assertFile from './utils/assertFile';
+import assertFsResembles from './utils/fsResembles';
 chai.use(chaiAsPromised);
 
 const upperCaseRule = (filename) => filename.toUpperCase();
@@ -17,138 +17,152 @@ const testDirectory = {
 
 beforeEach(() => {
     mock(testDirectory);
-    assertFile.setup(testDirectory);
 });
 
 afterEach(() => {
     mock.restore()
-    assertFile.teardown();
 });
 
 describe('batchFileRenamer', () => {
 
     it('can rename a single file using basic rule', () => {
-        const oldfile = 'testfile1'
-        const expected = 'TEST_FILE_ONE'
         const promise = batchFileRenamer({
-            rule: () => expected,
-            argv: [ oldfile ]
+            rule: () => 'TEST_FILE_ONE',
+            argv: [ 'testfile1' ]
         });
-        return promise.then(() => assertFile.moved(oldfile, expected));
+        return promise.then(() => assertFsResembles({
+            TEST_FILE_ONE: 'content of testfile1',
+            testfile2: 'content of testfile2',
+            testfile3: 'content of testfile3'
+        }));
     });
 
     it('is able to rename files to new filenames based on rule', () => {
-        const oldfiles = [ 'testfile1', 'testfile2', 'testfile3' ]
-        const expected = [ 'TESTFILE1', 'TESTFILE2', 'TESTFILE3' ]
         const promise = batchFileRenamer({
             rule: upperCaseRule,
-            argv: oldfiles
+            argv: [ 'testfile1', 'testfile2', 'testfile3' ]
         });
-        return promise.then(() =>
-            Promise.all(_.map(expected, (newfile, i) => assertFile.moved(oldfiles[i], newfile))));
+        return promise.then(() => assertFsResembles({
+            TESTFILE1: 'content of testfile1',
+            TESTFILE2: 'content of testfile2',
+            TESTFILE3: 'content of testfile3'
+        }));
     });
 
     it('is able to use async rule', () => {
-        const oldfiles = [ 'testfile1', 'testfile2', 'testfile3' ]
-        const expected = [ 'TESTFILE1', 'TESTFILE2', 'TESTFILE3' ]
-        const asyncRule = (file, options, callback) => _.defer(callback, null, file.toUpperCase())
+        const asyncUpperCaseRule = (file, options, callback) => _.defer(callback, null, file.toUpperCase())
         const promise = batchFileRenamer({
-            rule: asyncRule,
-            argv: oldfiles
+            rule: asyncUpperCaseRule,
+            argv: [ 'testfile1', 'testfile2', 'testfile3' ]
         });
-        return promise.then(() =>
-            Promise.all(_.map(expected, (newfile, i) => assertFile.moved(oldfiles[i], newfile))));
+        return promise.then(() => assertFsResembles({
+            TESTFILE1: 'content of testfile1',
+            TESTFILE2: 'content of testfile2',
+            TESTFILE3: 'content of testfile3'
+        }));
     });
 
     it('moves existing files', () => {
-        const existing = [ 'testfile1', 'testfile2' ];
-        const expected = [ 'TESTFILE1', 'TESTFILE2' ];
-        const oldfiles =[ ...existing, 'this-file-does-not-exist' ];
         const promise = batchFileRenamer({
             rule: upperCaseRule,
-            argv: oldfiles
+            argv: [ 'testfile1', 'testfile2', 'this-file-does-not-exist'  ]
         });
-        return promise.then(() =>
-            Promise.all(_.map(expected, (newfile, i) => assertFile.moved(oldfiles[i], newfile))));
+        return promise.then(() => assertFsResembles({
+            TESTFILE1: 'content of testfile1',
+            TESTFILE2: 'content of testfile2',
+            testfile3: 'content of testfile3'
+        }));
+    });
+
+    it('renames files if all exist and error-on-missing-files flag passed', () => {
+        const promise = batchFileRenamer({
+            rule: upperCaseRule,
+            argv: [
+                '--error-on-missing',
+                'testfile1', 'testfile2', 'testfile3'
+            ]
+        });
+        return promise.then(() => assertFsResembles({
+            TESTFILE1: 'content of testfile1',
+            TESTFILE2: 'content of testfile2',
+            TESTFILE3: 'content of testfile3'
+        }));
     });
 
     it('throws error if src file does not exist and error-on-missing-files flag passed', () => {
-        const existing = [ 'testfile1', 'testfile2' ];
-        const oldfiles = existing.concat([ 'this-file-does-not-exist' ]);
-        const flags = [ '--error-on-missing' ];
         const promise = batchFileRenamer({
             rule: upperCaseRule,
-            argv: [...flags, ...oldfiles]
+            argv: [
+                '--error-on-missing',
+                'testfile1', 'testfile2', 'this-file-does-not-exist'
+            ]
         });
         return assert.isRejected(promise);
     });
     it('does not move any files if file does not exist and error-on-missing-files flag passed', function () {
-        const existing = [ 'testfile1', 'testfile2' ];
-        const oldfiles = existing.concat([ 'this-file-does-not-exist' ]);
-        const flags = [ '--error-on-missing-file' ];
         const promise = batchFileRenamer({
             rule: upperCaseRule,
-            argv: [...flags, ...oldfiles]
+            argv: [
+                '--error-on-missing',
+                'testfile1', 'testfile2', 'this-file-does-not-exist'
+            ]
         });
-        return promise.catch(err =>
-             Promise.all(_.map(existing, (oldfile) => assertFile.unmoved(oldfile))));
+        return promise.catch(err => assertFsResembles(testDirectory));
     });
     it('creates new directories', function () {
-        const existing = [ 'testfile1', 'testfile2' ];
-        const expected = [ 'foo/bar/testfile1', 'foo/bar/testfile2' ];
-        const rule = (filename) => `foo/bar/${filename}`;
         const promise = batchFileRenamer({
-            rule: rule,
-            argv: existing
+            rule: (filename) => `foo/bar/${filename}`,
+            argv: [ 'testfile1', 'testfile2' ]
         });
-        return promise.then(() =>
-             Promise.all(_.map(existing, (oldfile, i) => assertFile.moved(oldfile, expected[i]))));
+        return promise.then(() => assertFsResembles({
+            foo: {
+                bar: {
+                    testfile1: 'content of testfile1',
+                    testfile2: 'content of testfile2',
+                }
+            },
+            testfile3: 'content of testfile3'
+        }));
     });
     it('does not overwrite existing file', () => {
-        const existing = [ 'testfile1' ];
         const promise = batchFileRenamer({
             rule: () => 'testfile2',
-            argv: existing
+            argv: [ 'testfile1' ]
         });
-        return promise.then(() =>
-             Promise.all(_.map(existing, (oldfile) => assertFile.unmoved(oldfile))));
+        return promise.then(() => assertFsResembles(testDirectory));
     });
     it('overwrites existing file if passed force flag', () => {
-        const existing = [ 'testfile1' ];
-        const expected = 'testfile2';
-        const flags = [ '--force' ];
         const promise = batchFileRenamer({
-            rule: () => expected,
-            argv: [ ...flags, ...existing ]
+            rule: () => 'testfile2',
+            argv: [ '--force', 'testfile1' ]
         });
-        return promise.then(() =>
-             Promise.all(_.map(existing, (oldfile, i) => assertFile.moved(oldfile, expected))));
+        return promise.then(() => assertFsResembles({
+            testfile2: 'content of testfile1',
+            testfile3: 'content of testfile3'
+        }));
     });
     it('overwrites existing file if passed force flag alias', () => {
-        const existing = [ 'testfile1' ];
-        const expected = 'testfile2';
-        const flags = [ '-f' ];
         const promise = batchFileRenamer({
-            rule: () => expected,
-            argv: [ ...flags, ...existing ]
+            rule: () => 'testfile2',
+            argv: [ '-f', 'testfile1' ]
         });
-        return promise.then(() =>
-             Promise.all(_.map(existing, (oldfile, i) => assertFile.moved(oldfile, expected))));
+        return promise.then(() => assertFsResembles({
+            testfile2: 'content of testfile1',
+            testfile3: 'content of testfile3'
+        }));
     });
     it('creates backup when passed backup flag', () => {
-        const oldfile = 'testfile1';
-        const backup = oldfile + '.bak';
-        const expected = 'TESTFILE1';
         const flags = [ '--backup' ];
         const promise = batchFileRenamer({
             rule: upperCaseRule,
-            argv: [ ...flags, oldfile ]
+            argv: [ '--backup', 'testfile1' ]
         });
-        return promise.then(() =>
-             Promise.all([
-                 assertFile.moved(oldfile, expected),
-                 assertFile.moved(oldfile, backup)
-             ]))
+        return promise.then(() => assertFsResembles({
+            'testfile1.bak': 'content of testfile1',
+            TESTFILE1: 'content of testfile1',
+            testfile2: 'content of testfile2',
+            testfile3: 'content of testfile3'
+        }));
     });
     it('can do cyclical rename', () => {
         const existing = [ 'testfile1', 'testfile2', 'testfile3' ]
@@ -161,7 +175,10 @@ describe('batchFileRenamer', () => {
             rule,
             argv: existing
         });
-        return promise.then(() =>
-             Promise.all(_.map(existing, (oldfile, i) => assertFile.moved(oldfile, expected[i], { noSrcMove: true }))));
+        return promise.then(() => assertFsResembles({
+            testfile1: 'content of testfile3',
+            testfile2: 'content of testfile1',
+            testfile3: 'content of testfile2',
+        }));
     });
 });
