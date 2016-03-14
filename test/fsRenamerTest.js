@@ -132,4 +132,23 @@ describe('fsRenamer', () => {
             alsorenamed: 'content of testfile3'
         }));
     });
+
+    it('does not remove tmp directory if it already exists', () => {
+        mock({
+            testfile1: 'content of testfile1',
+            '.tmp': {
+                someone_elses_file: 'blah'
+            }
+        })
+        const pairs = [
+            [ 'testfile1', 'TESTFILE1' ]
+        ];
+        const promise = fsRenamer(pairs);
+        return promise.then(() => assertFsResembles({
+            TESTFILE1: 'content of testfile1',
+            '.tmp': {
+                someone_elses_file: 'blah'
+            }
+        }));
+    })
 });

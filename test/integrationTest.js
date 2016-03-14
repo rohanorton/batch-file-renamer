@@ -116,6 +116,26 @@ describe('batchFileRenamer', () => {
         }));
     });
 
+    it('does not remove tmp directory if it already exists', () => {
+        // set up new mock filesystem with already existing .tmp directory
+        mock({
+            testfile1: 'content of testfile1',
+            '.tmp': {
+                someone_elses_file: 'blah'
+            }
+        })
+        const promise = batchFileRenamer({
+            rule: upperCaseRule,
+            argv: [ 'testfile1' ]
+        });
+        return promise.then(() => assertFsResembles({
+            TESTFILE1: 'content of testfile1',
+            '.tmp': {
+                someone_elses_file: 'blah'
+            }
+        }));
+    })
+
     describe('--error-on-missing', () => {
 
         it('renames files if all exist and error-on-missing-files flag passed', () => {
