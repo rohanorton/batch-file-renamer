@@ -65,7 +65,12 @@ let moveToDest = async (mediated, options) => {
             }
         } catch (err) {
             if (err.code === 'EEXIST') {
+                // File exist
                 await fs.move(tmp, src);
+            } else if (err.sequence === '\u0003') {
+                // SIGINT caught by keypress prompt library
+                await cleanUp(mediated);
+                process.exit();
             } else {
                 await cleanUp(mediated);
                 throw err;
