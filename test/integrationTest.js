@@ -161,7 +161,7 @@ describe('batchFileRenamer', () => {
                     'testfile1', 'testfile2', 'this-file-does-not-exist'
                 ]
             });
-            return assert.isRejected(promise);
+            return assert.isRejected(promise, /ENOENT/);
         });
 
         it('does not move any files if file does not exist and error-on-missing-files flag passed', function () {
