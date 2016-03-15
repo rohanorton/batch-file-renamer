@@ -93,4 +93,13 @@ fsRenamer.resetDependencies = () => {
     prompt = keypressPrompt.prompt;
 }
 
+const signals = [ 'SIGINT', 'SIGTERM', 'SIGQUIT' ];
+for (const signal of signals) {
+    process.on(signal, () => {
+        cleanUp()
+            .then(() => process.exit())
+            .catch(() => process.exit(1));
+    });
+};
+
 export default fsRenamer;
