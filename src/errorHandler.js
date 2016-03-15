@@ -2,11 +2,12 @@ import chalk from 'chalk';
 import { get, includes, defaults } from 'lodash';
 import {DEBUG} from './flags';
 
+
 const formatMessage = (err, args = {}) => {
     const codes = defaults({
         ENOENT: 'No such file or directory: ' + err.path
     }, args.errorMessages);
-    return codes[err.code] || err.message;
+    return codes[err.code] || err.message || 'An unexpected error occurred';
 }
 
 const isDebugging = () =>
