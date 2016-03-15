@@ -77,7 +77,7 @@ let moveToDest = async (mediated, options) => {
     }
 }
 
-const handleDeath = (mediated) => {
+const setupOnDeathHandlers = (mediated) => {
     const signals = [ 'SIGINT', 'SIGTERM', 'SIGQUIT' ];
     for (const signal of signals) {
         process.on(signal, () => {
@@ -91,7 +91,7 @@ const handleDeath = (mediated) => {
 let fsRenamer = async (pairs, options = {}) => {
     let mediated = createMediation(pairs);
 
-    handleDeath(mediated);
+    setupOnDeathHandlers(mediated);
 
     if (options[BACKUP]) {
         await backup(mediated);
