@@ -79,8 +79,22 @@ let moveToDest = async (mediated, options) => {
     }
 }
 
+const handleDeath = (mediated) => {
+    const signals = [ 'SIGINT', 'SIGTERM', 'SIGQUIT' ];
+    for (const signal of signals) {
+        process.on(signal, () => {
+            cleanUp(mediated)
+                .then(() => process.exit())
+                .catch(() => process.exit(1));
+        });
+    };
+};
+
 let fsRenamer = async (pairs, options = {}) => {
     let mediated = createMediation(pairs);
+
+    handleDeath(mediated);
+
     if (options[BACKUP]) {
         await backup(mediated);
     }
@@ -97,14 +111,5 @@ fsRenamer.inject = (injectedPrompt) => {
 fsRenamer.resetDependencies = () => {
     prompt = keypressPrompt.prompt;
 }
-
-const signals = [ 'SIGINT', 'SIGTERM', 'SIGQUIT' ];
-for (const signal of signals) {
-    process.on(signal, () => {
-        cleanUp()
-            .then(() => process.exit())
-            .catch(() => process.exit(1));
-    });
-};
 
 export default fsRenamer;
