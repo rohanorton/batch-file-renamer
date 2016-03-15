@@ -1,7 +1,7 @@
 import fs from 'fs-promise';
 import path from 'path';
 import uuid from 'uuid';
-import _ from 'lodash';
+import { map } from 'lodash';
 import keypressPrompt from 'keypress-prompt';
 import {FORCE, BACKUP, INTERACTIVE} from './flags';
 
@@ -14,7 +14,7 @@ let createTempFilename = (filename) =>
     path.join(tmpDir, `${filename}-${uuid.v4()}`);
 
 let createMediation = (pairs) =>
-    _.map(pairs, ([ src, dest ]) => [ src, createTempFilename(src), dest ]);
+    map(pairs, ([ src, dest ]) => [ src, createTempFilename(src), dest ]);
 
 let cleanUp = async (mediated) => {
     for (const [ src, tmp ] of mediated) {
