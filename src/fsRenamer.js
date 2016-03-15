@@ -44,21 +44,19 @@ let moveToTemp = async (mediated) => {
     }
 }
 
-let shouldRename = async (src, dest, options) => {
-    let result = true;
-    if (options[INTERACTIVE]) {
-        const confirm = 'y';
-        let response = await prompt(`Renaming ${src} to ${dest}, are you sure?`, [confirm, 'n']);
-        result = (response === confirm);
-    }
-    return result;
+let promptUser = async (src, dest) => {
+    const confirmKey = 'y';
+    const response = await prompt(`Renaming ${src} to ${dest}, are you sure?`, [confirmKey, 'n'])
+    return response === confirmKey;
 }
+
+let shouldRename = async (src, dest, options) =>
+    options[INTERACTIVE] ? await promptUser(src, dest) : true;
 
 let moveToDest = async (mediated, options) => {
     for (const [ src, tmp, dest ] of mediated) {
         try {
-            const rename = await shouldRename(src, dest, options);
-            if (rename) {
+            if (await shouldRename(src, dest, options)) {
                 await fs.move(tmp, dest, { clobber: options[FORCE] });
             } else {
                 await fs.move(tmp, src);
