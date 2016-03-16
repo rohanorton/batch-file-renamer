@@ -1,12 +1,15 @@
 import fs from 'fs-promise';
 import path from 'path';
 import uuid from 'uuid';
-import { map } from 'lodash/fp';
+import { map, noop } from 'lodash/fp';
 import keypressPrompt from 'keypress-prompt';
+import onDeath from './onDeath';
 import {FORCE, BACKUP, INTERACTIVE} from './flags';
 
 // assign to variable to enable dependency injection
 let prompt = keypressPrompt.prompt;
+
+let removeDeathListener = noop;
 
 const tmpDir = '.tmp';
 
@@ -27,6 +30,7 @@ let cleanUp = async (mediated) => {
     } catch (err) {
         // ignore error
     }
+    removeDeathListener();
 }
 
 let backup = async (mediated) => {
@@ -74,16 +78,12 @@ let moveToDest = async (mediated, options) => {
     }
 }
 
-const setupOnDeathHandlers = (mediated) => {
-    const signals = [ 'SIGINT', 'SIGTERM', 'SIGQUIT' ];
-    for (const signal of signals) {
-        process.on(signal, () => {
-            cleanUp(mediated)
-                .then(() => process.exit())
-                .catch(() => process.exit(1));
-        });
-    };
-};
+const handleDeath = (mediated) => {
+    cleanUp(mediated)
+        .then(() => process.exit())
+        .catch(() => process.exit(1));
+}
+
 
 let createMediation = ([ src, dest ]) =>
 	[ src, createTempFilename(src), dest ];
@@ -91,7 +91,7 @@ let createMediation = ([ src, dest ]) =>
 let fsRename = async (pairs, options = {}) => {
     const mediated = map(createMediation, pairs);
 
-    setupOnDeathHandlers(mediated);
+    removeDeathListener = onDeath(handleDeath.bind(null, mediated));
 
     if (options[BACKUP]) {
         await backup(mediated);
@@ -99,6 +99,8 @@ let fsRename = async (pairs, options = {}) => {
     await moveToTemp(mediated);
     await moveToDest(mediated, options);
     await cleanUp(mediated);
+
+    removeDeathListener();
 }
 
 // dependency injection for testing purposes:
