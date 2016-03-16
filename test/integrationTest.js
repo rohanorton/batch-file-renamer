@@ -60,6 +60,27 @@ describe('batchFileRenamer', () => {
             LOVELYfile2: 'content of testfile2',
             LOVELYfile3: 'content of testfile3'
         }));
+    })
+
+    it('is able to use promise rule', () => {
+        const promiseRule = (file, options) => {
+            return new Promise((resolve, reject) => {
+                try {
+                    _.defer(resolve, _.replace(file, 'test', 'ADORBZ'));
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        };
+        const promise = batchFileRenamer({
+            rule: promiseRule,
+            argv: [ 'testfile1', 'testfile2', 'testfile3' ]
+        });
+        return promise.then(() => assertFsResembles({
+            ADORBZfile1: 'content of testfile1',
+            ADORBZfile2: 'content of testfile2',
+            ADORBZfile3: 'content of testfile3'
+        }));
     });
 
     it('moves existing files', () => {
