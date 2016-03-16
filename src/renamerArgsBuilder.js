@@ -1,4 +1,4 @@
-import { _, every, some, isEmpty, isString } from 'lodash';
+import  _, { every, some, isEmpty, isString } from 'lodash/fp';
 import assert from 'assert';
 
 const validateArgs = (sourcenames, destnames) => {
@@ -12,11 +12,9 @@ const identicalSourceAndDest = ([src, dest]) =>
     src === dest;
 
 // checks for [ 'file', null ] or [ null, 'file' ]
-const onlyStrings = (pair) =>
-    every(pair, isString);
+const onlyStrings = every(isString);
 
-const anyEmptyStrings = (pair) =>
-    some(pair, isEmpty);
+const anyEmptyStrings = some(isEmpty);
 
 const argsBuilder = (sourcenames, destnames) => {
     validateArgs(sourcenames, destnames);

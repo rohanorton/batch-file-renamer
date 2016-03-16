@@ -1,7 +1,7 @@
 import fs from 'fs-promise';
 import path from 'path';
 import uuid from 'uuid';
-import { map } from 'lodash';
+import { map } from 'lodash/fp';
 import keypressPrompt from 'keypress-prompt';
 import {FORCE, BACKUP, INTERACTIVE} from './flags';
 
@@ -12,9 +12,6 @@ const tmpDir = '.tmp';
 
 let createTempFilename = (filename) =>
     path.join(tmpDir, `${filename}-${uuid.v4()}`);
-
-let createMediation = (pairs) =>
-    map(pairs, ([ src, dest ]) => [ src, createTempFilename(src), dest ]);
 
 let cleanUp = async (mediated) => {
     for (const [ src, tmp ] of mediated) {
@@ -88,8 +85,11 @@ const setupOnDeathHandlers = (mediated) => {
     };
 };
 
+let createMediation = ([ src, dest ]) =>
+	[ src, createTempFilename(src), dest ];
+
 let fsRenamer = async (pairs, options = {}) => {
-    let mediated = createMediation(pairs);
+    const mediated = map(createMediation, pairs);
 
     setupOnDeathHandlers(mediated);
 
