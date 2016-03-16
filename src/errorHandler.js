@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { get, includes, defaults } from 'lodash';
+import { includes, defaults } from 'lodash/fp';
 import {DEBUG} from './flags';
 
 
@@ -11,7 +11,7 @@ const formatMessage = (err, args = {}) => {
 }
 
 const isDebugging = () =>
-    includes(process.argv, `--${DEBUG}`);
+    includes(`--${DEBUG}`, process.argv);
 
 const errorHandler = (args = {}) => {
     return (err) => {
