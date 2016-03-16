@@ -16,7 +16,7 @@ const onlyStrings = every(isString);
 
 const anyEmptyStrings = some(isEmpty);
 
-const argsBuilder = (sourcenames, destnames) => {
+const buildArgs = (sourcenames, destnames) => {
     validateArgs(sourcenames, destnames);
     return _(sourcenames)
         .zip(destnames)
@@ -27,4 +27,4 @@ const argsBuilder = (sourcenames, destnames) => {
         .value();
 }
 
-export default argsBuilder;
+export default buildArgs;

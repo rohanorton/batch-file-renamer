@@ -1,7 +1,6 @@
 import yargs from 'yargs';
 import {ERROR_ON_MISSING_FILE, FORCE, BACKUP, INTERACTIVE} from './flags';
-import mergeOptions from './optionsMerger';
-
+import mergeOptions from './mergeOptions';
 
 const parseArgv = (argv, custom = {}) => {
     const standard = {

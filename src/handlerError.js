@@ -13,7 +13,7 @@ const formatMessage = (err, args = {}) => {
 const isDebugging = () =>
     includes(`--${DEBUG}`, process.argv);
 
-const errorHandler = (args = {}) => {
+const handleError = (args = {}) => {
     return (err) => {
         console.log(chalk.red('Error:'))
         console.log(chalk.red(formatMessage(err, args)));
@@ -26,4 +26,4 @@ const errorHandler = (args = {}) => {
     }
 }
 
-export default errorHandler;
+export default handleError;

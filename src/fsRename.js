@@ -88,7 +88,7 @@ const setupOnDeathHandlers = (mediated) => {
 let createMediation = ([ src, dest ]) =>
 	[ src, createTempFilename(src), dest ];
 
-let fsRenamer = async (pairs, options = {}) => {
+let fsRename = async (pairs, options = {}) => {
     const mediated = map(createMediation, pairs);
 
     setupOnDeathHandlers(mediated);
@@ -102,12 +102,12 @@ let fsRenamer = async (pairs, options = {}) => {
 }
 
 // dependency injection for testing purposes:
-fsRenamer.inject = (injectedPrompt) => {
+fsRename.inject = (injectedPrompt) => {
     prompt = injectedPrompt;
 }
 
-fsRenamer.resetDependencies = () => {
+fsRename.resetDependencies = () => {
     prompt = keypressPrompt.prompt;
 }
 
-export default fsRenamer;
+export default fsRename;

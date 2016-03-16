@@ -1,7 +1,7 @@
 import batchFileRenamer from './batchFileRenamer';
-import errorHandler from './errorHandler';
+import handleError from './handlerError';
 
 export default (args) =>
     batchFileRenamer(args)
         .then(() => process.exit())
-        .catch(errorHandler(args));
+        .catch(handleError(args));

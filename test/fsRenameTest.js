@@ -3,7 +3,7 @@ import mock from 'mock-fs';
 import _ from 'lodash';
 import assertFsResembles from './utils/fsResembles';
 import mockPrompter from './utils/mockPrompter';
-import fsRenamer  from '../src/fsRenamer';
+import fsRename  from '../src/fsRename';
 import chai, { assert } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
@@ -20,17 +20,17 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-    fsRenamer.resetDependencies();
+    fsRename.resetDependencies();
     mock.restore()
 });
 
-describe('fsRenamer', () => {
+describe('fsRename', () => {
     it('takes array of src/dest pairs and moves files', () => {
         const pairs = [
             [ 'testfile1', 'foobarbaz' ],
             [ 'testfile2', 'bazbarfoo' ]
         ];
-        const promise = fsRenamer(pairs);
+        const promise = fsRename(pairs);
         return promise.then(() => assertFsResembles({
             foobarbaz: 'content of testfile1',
             bazbarfoo: 'content of testfile2',
@@ -39,7 +39,7 @@ describe('fsRenamer', () => {
     });
 
     it('does not error on empty array', () => {
-        const promise = fsRenamer([]);
+        const promise = fsRename([]);
         return assert.isFulfilled(promise);
     });
 
@@ -47,7 +47,7 @@ describe('fsRenamer', () => {
         const pairs = [
             [ 'this-file-doesnt-exist', 'foobarbaz' ]
         ];
-        const promise = fsRenamer(pairs);
+        const promise = fsRename(pairs);
         return assert.isRejected(promise);
     });
 
@@ -55,7 +55,7 @@ describe('fsRenamer', () => {
         const pairs = [
             [ 'testfile1', 'foo/bar/testfile1' ]
         ];
-        const promise = fsRenamer(pairs);
+        const promise = fsRename(pairs);
         return promise.then(() => assertFsResembles({
             foo: {
                 bar: {
@@ -71,7 +71,7 @@ describe('fsRenamer', () => {
         const pairs = [
             [ 'testfile1', 'testfile2' ]
         ];
-        const promise = fsRenamer(pairs);
+        const promise = fsRename(pairs);
         return promise.then(() => assertFsResembles(testDirectory));
     });
 
@@ -79,7 +79,7 @@ describe('fsRenamer', () => {
         const pairs = [
             [ 'testfile1', 'testfile2' ]
         ];
-        const promise = fsRenamer(pairs, { force: true });
+        const promise = fsRename(pairs, { force: true });
         return promise.then(() => assertFsResembles({
             testfile2: 'content of testfile1',
             testfile3: 'content of testfile3'
@@ -93,7 +93,7 @@ describe('fsRenamer', () => {
         const pairs = [
             [ oldfile, newfile ]
         ];
-        const promise = fsRenamer(pairs, { backup: true });
+        const promise = fsRename(pairs, { backup: true });
         return promise.then(() => assertFsResembles({
             'testfile1.bak': 'content of testfile1',
             asdf: 'content of testfile1',
@@ -108,7 +108,7 @@ describe('fsRenamer', () => {
             [ 'testfile2', 'testfile3' ],
             [ 'testfile3', 'testfile1' ]
         ];
-        const promise = fsRenamer(pairs);
+        const promise = fsRename(pairs);
         return promise.then(() => assertFsResembles({
             testfile1: 'content of testfile3',
             testfile2: 'content of testfile1',
@@ -124,8 +124,8 @@ describe('fsRenamer', () => {
         ];
         const options = { interactive: true };
         // use dependency injection to simulate keypress prompt library:
-        fsRenamer.inject(mockPrompter('y', 'n', 'y'));
-        const promise = fsRenamer(pairs, options);
+        fsRename.inject(mockPrompter('y', 'n', 'y'));
+        const promise = fsRename(pairs, options);
         return promise.then(() => assertFsResembles({
             renamed: 'content of testfile1',
             testfile2: 'content of testfile2',
@@ -143,7 +143,7 @@ describe('fsRenamer', () => {
         const pairs = [
             [ 'testfile1', 'TESTFILE1' ]
         ];
-        const promise = fsRenamer(pairs);
+        const promise = fsRename(pairs);
         return promise.then(() => assertFsResembles({
             TESTFILE1: 'content of testfile1',
             '.tmp': {

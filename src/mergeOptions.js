@@ -5,7 +5,7 @@ import convert from 'lodash/fp/convert';
 import _ from 'lodash';
 const reduce = convert('reduce', _.reduce, { 'cap': false, });
 
-const optionsMerger = (primary = {}, secondary = {}) => {
+const mergeOptions = (primary = {}, secondary = {}) => {
     primary = cloneDeep(primary);
     secondary = cloneDeep(secondary);
 
@@ -21,4 +21,4 @@ const optionsMerger = (primary = {}, secondary = {}) => {
 
 
 
-export default optionsMerger
+export default mergeOptions
