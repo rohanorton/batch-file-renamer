@@ -50,15 +50,15 @@ describe('batchFileRenamer', () => {
     });
 
     it('is able to use async rule', () => {
-        const asyncUpperCaseRule = (file, options, callback) => _.defer(callback, null, file.toUpperCase())
+        const asyncUpperCaseRule = (file, options, callback) => _.defer(callback, null, _.replace(file, 'test', 'LOVELY'))
         const promise = batchFileRenamer({
             rule: asyncUpperCaseRule,
             argv: [ 'testfile1', 'testfile2', 'testfile3' ]
         });
         return promise.then(() => assertFsResembles({
-            TESTFILE1: 'content of testfile1',
-            TESTFILE2: 'content of testfile2',
-            TESTFILE3: 'content of testfile3'
+            LOVELYfile1: 'content of testfile1',
+            LOVELYfile2: 'content of testfile2',
+            LOVELYfile3: 'content of testfile3'
         }));
     });
 
