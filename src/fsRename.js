@@ -23,39 +23,43 @@ let cleanUp = async (mediated) => {
         try {
             await fs.move(tmp, src)
         } catch (err) {
-            logger.debug(`error caught whilst moving ${tmp} to ${src}:`);
+            logger.debug(`error caught whilst moving '${tmp}' to '${src}':`);
             logger.debug(err.message);
-            logger.debug(err.trace);
+            logger.debug('')
+            logger.debug(err.stack);
+            logger.debug('')
         }
     }
     try {
         // will only remove empty directory:
         fs.rmdir(tmpDir);
     } catch (err) {
-        logger.debug('error caught whilst removing tmp directory:');
+        logger.debug(`error caught whilst removing tmp directory, '${tmpDir}':`);
         logger.debug(err.message);
-        logger.debug(err.trace);
+        logger.debug('')
+        logger.debug(err.stack);
+        logger.debug('')
     }
     removeDeathListener();
 }
 
 let backup = async (mediated) => {
     for (const [ src ] of mediated) {
-        logger.debug(`creating backup of ${src}`);
+        logger.debug(`creating backup of '${src}'`);
         await fs.copy(src, src + '.bak');
     }
 }
 
 let moveToTemp = async (mediated) => {
     for (const [ src, tmp ] of mediated) {
-        logger.debug(`Moving source, ${src}, to temporary file, ${tmp}`);
+        logger.debug(`Moving source, '${src}', to temporary file, '${tmp}'`);
         await fs.move(src, tmp, { clobber: true, mkdirp: true });
     }
 }
 
 let promptUser = async (src, dest) => {
     const confirmKey = 'y';
-    const response = await prompt(`Renaming ${src} to ${dest}, are you sure?`, [confirmKey, 'n'])
+    const response = await prompt(`Renaming '${src}' to '${dest}', are you sure?`, [confirmKey, 'n'])
     return response === confirmKey;
 }
 
@@ -66,16 +70,17 @@ let moveToDest = async (mediated, options) => {
     for (const [ src, tmp, dest ] of mediated) {
         try {
             if (await shouldRename(src, dest, options)) {
-                logger.debug(`Moving temporary file, ${tmp}, to destination, ${dest}`);
+                logger.debug(`Moving temporary file, '${tmp}', to destination, '${dest}'`);
                 await fs.move(tmp, dest, { clobber: options[FORCE] });
             } else {
-                logger.debug(`Moving temporary file, ${tmp} back to source, ${src}`);
+                logger.debug(`Moving temporary file, '${tmp}' back to source, '${src}'`);
                 await fs.move(tmp, src);
             }
         } catch (err) {
             if (err.code === 'EEXIST') {
                 // File exist
-                logger.debug(`Moving temporary file, ${tmp} back to source, ${src}`);
+                logger.warn(`Failed to move file '${src}' to '${dest}': File exists`);
+                logger.debug(`Moving temporary file, '${tmp}' back to source, '${src}'`);
                 await fs.move(tmp, src);
             } else if (err.sequence === '\u0003') {
                 // SIGINT caught by keypress prompt library
