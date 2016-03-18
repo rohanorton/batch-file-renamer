@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 import { includes, defaults } from 'lodash/fp';
 import {DEBUG} from './flags';
-
+import logger from './logger';
 
 const formatMessage = (err, args = {}) => {
     const codes = defaults({
@@ -10,18 +10,13 @@ const formatMessage = (err, args = {}) => {
     return codes[err.code] || err.message || 'An unexpected error occurred';
 }
 
-const isDebugging = () =>
-    includes(`--${DEBUG}`, process.argv);
-
 const handleError = (args = {}) => {
     return (err) => {
-        console.log(chalk.red('Error:'))
-        console.log(chalk.red(formatMessage(err, args)));
-        if (isDebugging()) {
-            console.log('');
-            console.log(err.stack);
-            console.log('');
-        }
+        logger.error('Error:')
+        logger.error(formatMessage(err, args));
+        logger.debug('');
+        logger.debug(err.stack);
+        logger.debug('');
         process.exit(1);
     }
 }

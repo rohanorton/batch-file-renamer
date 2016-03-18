@@ -5,6 +5,7 @@ import { map, noop } from 'lodash/fp';
 import keypressPrompt from 'keypress-prompt';
 import onDeath from './onDeath';
 import {FORCE, BACKUP, INTERACTIVE} from './flags';
+import logger from './logger';
 
 // assign to variable to enable dependency injection
 let prompt = keypressPrompt.prompt;
@@ -17,30 +18,37 @@ let createTempFilename = (filename) =>
     path.join(tmpDir, `${filename}-${uuid.v4()}`);
 
 let cleanUp = async (mediated) => {
+    logger.debug('cleaning up')
     for (const [ src, tmp ] of mediated) {
         try {
             await fs.move(tmp, src)
         } catch (err) {
-            // ignore error
+            logger.debug(`error caught whilst moving ${tmp} to ${src}:`);
+            logger.debug(err.message);
+            logger.debug(err.trace);
         }
     }
     try {
         // will only remove empty directory:
         fs.rmdir(tmpDir);
     } catch (err) {
-        // ignore error
+        logger.debug('error caught whilst removing tmp directory:');
+        logger.debug(err.message);
+        logger.debug(err.trace);
     }
     removeDeathListener();
 }
 
 let backup = async (mediated) => {
     for (const [ src ] of mediated) {
+        logger.debug(`creating backup of ${src}`);
         await fs.copy(src, src + '.bak');
     }
 }
 
 let moveToTemp = async (mediated) => {
     for (const [ src, tmp ] of mediated) {
+        logger.debug(`Moving source, ${src}, to temporary file, ${tmp}`);
         await fs.move(src, tmp, { clobber: true, mkdirp: true });
     }
 }
@@ -58,16 +66,20 @@ let moveToDest = async (mediated, options) => {
     for (const [ src, tmp, dest ] of mediated) {
         try {
             if (await shouldRename(src, dest, options)) {
+                logger.debug(`Moving temporary file, ${tmp}, to destination, ${dest}`);
                 await fs.move(tmp, dest, { clobber: options[FORCE] });
             } else {
+                logger.debug(`Moving temporary file, ${tmp} back to source, ${src}`);
                 await fs.move(tmp, src);
             }
         } catch (err) {
             if (err.code === 'EEXIST') {
                 // File exist
+                logger.debug(`Moving temporary file, ${tmp} back to source, ${src}`);
                 await fs.move(tmp, src);
             } else if (err.sequence === '\u0003') {
                 // SIGINT caught by keypress prompt library
+                logger.debug('Caught SIGINT');
                 await cleanUp(mediated);
                 process.exit();
             } else {

@@ -1,5 +1,6 @@
 import fs from 'fs-promise';
 import {ERROR_ON_MISSING_FILE} from './flags';
+import logger from './logger';
 
 const getExistingFilenames = async (filenames, options = {}) => {
     let memo = [];
@@ -8,15 +9,16 @@ const getExistingFilenames = async (filenames, options = {}) => {
             await fs.stat(filename);
             memo.push(filename);
         } catch (err) {
-            handleError(err, options);
+            handleError(err, filename, options);
         }
     }
     return memo;
 };
 
-const handleError = (err, options) => {
+const handleError = (err, filename, options) => {
     if (err.code === 'ENOENT') {
         if (options[ERROR_ON_MISSING_FILE]) throw err;
+        logger.warn(`Cannot stat '${filename}': No such file or directory`);
     } else {
         throw err;
     }
