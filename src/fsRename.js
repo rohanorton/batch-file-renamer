@@ -3,7 +3,7 @@ import path from 'path';
 import uuid from 'uuid';
 import { map, noop } from 'lodash/fp';
 import keypressPrompt from 'keypress-prompt';
-import onDeath from './onDeath';
+import onDeath from 'death';
 import {FORCE, BACKUP, INTERACTIVE} from './flags';
 import logger from './logger';
 
