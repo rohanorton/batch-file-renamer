@@ -6,9 +6,11 @@ const logger = {
     level: 0,
 
     init({ level, colour }) {
+        if (this.isInitialised) return;
         this.colour = !!colour;
         const levelMap = { debug: 4, log: 3, warn: 2, error: 1, silent: 0 };
         this.level = levelMap[level] || 0;
+        this.isInitialised = true;
     },
     debug(...args) {
         if (this.level < 4) return;
