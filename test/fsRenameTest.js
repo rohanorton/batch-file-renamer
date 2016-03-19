@@ -153,5 +153,15 @@ describe('fsRename', () => {
                 someone_elses_file: 'blah'
             }
         }));
-    })
+    });
+
+    it('does not change directory if dry-run option passed', () => {
+        const pairs = [
+            [ 'testfile1', 'foobarbaz' ],
+            [ 'testfile2', 'bazbarfoo' ]
+        ];
+        const promise = fsRename(pairs, { 'dry-run': true });
+        return promise.then(() => assertFsResembles(testDirectory));
+
+    });
 });

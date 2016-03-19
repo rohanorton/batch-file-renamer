@@ -1,11 +1,13 @@
-import fs from 'fs-promise';
+import fsReal from 'fs-promise';
+import fsDryRun from './fsDryRun';
 import path from 'path';
 import uuid from 'uuid';
-import {FORCE, BACKUP, INTERACTIVE} from './flags';
+import {FORCE, BACKUP, INTERACTIVE, DRY_RUN} from './flags';
 import logger from './logger';
 
 class FileRenamer {
     constructor(src, dest, options, prompt) {
+        this.fs = options[DRY_RUN] ? fsDryRun : fsReal;
         this.tmpDir = '.tmp';
         this.src = src;
         this.dest = dest;
@@ -17,12 +19,12 @@ class FileRenamer {
 
     async backup() {
         logger.debug(`Creating backup of '${this.src}'`);
-        await fs.copy(this.src, this.src + '.bak');
+        await this.fs.copy(this.src, this.src + '.bak');
     }
 
     async moveToTemp() {
         logger.debug(`Moving source, '${this.src}', to temporary file, '${this.tmp}'`);
-        await fs.move(this.src, this.tmp, { clobber: true, mkdirp: true });
+        await this.fs.move(this.src, this.tmp, { clobber: true, mkdirp: true });
         this.isMediate = true;
     }
 
@@ -30,7 +32,7 @@ class FileRenamer {
         if (await this.shouldRename(this.src, this.dest)) {
             logger.debug(`Moving temporary file, '${this.tmp}', to destination, '${this.dest}'`);
             try {
-                await fs.move(this.tmp, this.dest, { clobber: this.options[FORCE] });
+                await this.fs.move(this.tmp, this.dest, { clobber: this.options[FORCE] });
                 this.isMediate = false;
             } catch (err) {
                 if (err.code === 'EEXIST') {
@@ -68,7 +70,7 @@ class FileRenamer {
     async cleanUp() {
         if (this.isMediate) {
             logger.debug(`Cleaning up: Moving temporary file, '${this.tmp}' back to source, '${this.src}'`);
-            await fs.move(this.tmp, this.src);
+            await this.fs.move(this.tmp, this.src);
             this.isMediate = false;
         }
     }

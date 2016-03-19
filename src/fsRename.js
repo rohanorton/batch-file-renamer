@@ -1,13 +1,15 @@
-import fs from 'fs-promise';
+import fsReal from 'fs-promise';
+import fsDryRun from './fsDryRun';
 import { map } from 'lodash/fp';
 import keypressPrompt from 'keypress-prompt';
 import onDeath from 'death';
-import {BACKUP} from './flags';
+import {BACKUP, DRY_RUN} from './flags';
 import logger from './logger';
 import FileRenamer from './FileRenamer';
 
 class BatchRenamer {
     constructor(pairs, options = {}, prompt) {
+        this.fs = options[DRY_RUN] ? fsDryRun : fsReal;
         this.tmpDir = '.tmp';
         this.options = options;
         this.renamers = map(([ src, dest ])=> new FileRenamer(src, dest, options, prompt), pairs);
@@ -48,18 +50,15 @@ class BatchRenamer {
     }
 
     async cleanUp() {
-        logger.debug('cleaning up')
+        logger.debug('Cleaning up')
         for (const renamer of this.renamers) {
             await renamer.cleanUp();
         }
         try {
             // will only remove empty directory:
-            fs.rmdir(this.tmpDir);
+            await this.fs.rmdir(this.tmpDir);
         } catch (err) {
-            logger.debug(` Error caught whilst cleaning up tmp directory, '${tmpDir}':
-                            ${err.message}
-
-                            ${err.stack}`);
+            logger.debug(`Error caught whilst cleaning up tmp directory, '${this.tmpDir}': \n    ${err.stack}`);
         }
         this.removeDeathListener();
     }
