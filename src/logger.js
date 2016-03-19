@@ -14,6 +14,8 @@ const logger = {
     },
     debug(...args) {
         if (this.level < 4) return;
+        // add prefix:
+        args = [ '[DEBUG]', ...args ];
         if (this.colour) args = map(chalk.gray, args);
         console.log(...args);
     },
