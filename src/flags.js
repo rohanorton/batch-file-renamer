@@ -8,3 +8,5 @@ export const DEBUG = 'DEBUG';
 export const VERBOSE = 'verbose';
 export const SILENT = 'silent';
 export const QUIET = 'quiet';
+
+export const COLOUR = 'colour';
