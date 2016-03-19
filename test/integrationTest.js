@@ -7,6 +7,10 @@ import batchFileRenamer from '../src/batchFileRenamer';
 import assertFsResembles from './utils/fsResembles';
 chai.use(chaiAsPromised);
 
+// ensure no logging in test:
+import logger from '../src/logger';
+logger.init({ level: 'silent' });
+
 const upperCaseRule = (filename) => filename.toUpperCase();
 
 const testDirectory = {

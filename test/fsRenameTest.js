@@ -8,6 +8,9 @@ import chai, { assert } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 chai.use(chaiAsPromised);
 
+// ensure no logging in test:
+import logger from '../src/logger';
+logger.init({ level: 'silent' });
 
 const testDirectory = {
     testfile1: 'content of testfile1',
