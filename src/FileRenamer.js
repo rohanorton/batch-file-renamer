@@ -14,7 +14,6 @@ class FileRenamer {
         this.options = options;
         this.tmp = this.createTempFilename();
         this.prompt = prompt;
-        this.isMediate = false;
     }
 
     async backup() {
@@ -25,7 +24,6 @@ class FileRenamer {
     async moveToTemp() {
         logger.debug(`Moving source, '${this.src}', to temporary file, '${this.tmp}'`);
         await this.fs.move(this.src, this.tmp, { clobber: true, mkdirp: true });
-        this.isMediate = true;
     }
 
     async moveToDest() {
@@ -33,7 +31,6 @@ class FileRenamer {
             logger.debug(`Moving temporary file, '${this.tmp}', to destination, '${this.dest}'`);
             try {
                 await this.fs.move(this.tmp, this.dest, { clobber: this.options[FORCE] });
-                this.isMediate = false;
             } catch (err) {
                 if (err.code === 'EEXIST') {
                     logger.warn(`Failed to move file '${this.src}' to '${this.dest}': File exists`);
@@ -68,10 +65,14 @@ class FileRenamer {
     }
 
     async cleanUp() {
-        if (this.isMediate) {
+        try {
             logger.debug(`Cleaning up: Moving temporary file, '${this.tmp}' back to source, '${this.src}'`);
             await this.fs.move(this.tmp, this.src);
-            this.isMediate = false;
+        } catch (err) {
+            // There is often no file to move as it has already been moved.
+            if (err.code !== 'ENOENT') {
+                throw err;
+            }
         }
     }
 
