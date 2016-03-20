@@ -51,7 +51,7 @@ describe('fsRename', () => {
             [ 'this-file-doesnt-exist', 'foobarbaz' ]
         ];
         const promise = fsRename(pairs);
-        return assert.isRejected(promise);
+        return assert.isRejected(promise, /ENOENT/);
     });
 
     it('can create new directories', () => {
