@@ -4,7 +4,7 @@ import _ from 'lodash';
 import chai, { assert } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import batchFileRenamer from '../src/batchFileRenamer';
-import assertFsResembles from './utils/fsResembles';
+import assertFsResembles from 'assert-fs-resembles';
 chai.use(chaiAsPromised);
 
 // ensure no logging in test:

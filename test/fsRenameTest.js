@@ -1,7 +1,7 @@
 /*globals it, describe, beforeEach, afterEach */
 import mock from 'mock-fs';
 import _ from 'lodash';
-import assertFsResembles from './utils/fsResembles';
+import assertFsResembles from 'assert-fs-resembles';
 import mockPrompter from './utils/mockPrompter';
 import fsRename  from '../src/fsRename';
 import chai, { assert } from 'chai';
