@@ -164,4 +164,26 @@ describe('fsRename', () => {
         return promise.then(() => assertFsResembles(testDirectory));
 
     });
+
+    it('renames files despite permissions', () => {
+        mock({
+            testfile1: {
+                content: 'content of testfile1',
+                uid: 0, // root
+                mode: 444 // readonly
+            },
+            testfile2: {
+                content: 'content of testfile2',
+                uid: 0,
+                mode: 444
+            }
+        })
+        const pairs = [
+            [ 'testfile1', 'TESTFILE1' ],
+            [ 'testfile2', 'TESTFILE2' ]
+        ];
+        const promise = fsRename(pairs);
+        return promise.then(() => assertFsResembles([ 'TESTFILE1', 'TESTFILE2' ]));
+    });
 });
+
