@@ -5,7 +5,6 @@ import parseArgv from './parseArgv';
 import buildArgs from './buildArgs';
 import fsRename from './fsRename';
 import getExistingFilenames from './getExistingFilenames';
-import getDirectoryContents from './getDirectoryContents';
 import mapPromise from './mapPromise';
 
 import logger from './logger';
@@ -29,8 +28,7 @@ const batchFileRenamer = async ({ rule, argv, cliOptions }) => {
     rule = hasCallback(rule) ? promisify(rule) : rule;
     const createNewNames = mapPromise((oldname) => rule(oldname, options));
 
-    const existing = await getExistingFilenames(filenames, options);
-    const oldnames = await getDirectoryContents(existing, options);
+    const oldnames = await getExistingFilenames(filenames, options);;
     const newnames = await createNewNames(oldnames);
     const pairs = buildArgs(oldnames, newnames);
     await fsRename(pairs, options);
