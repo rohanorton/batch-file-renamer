@@ -18,16 +18,16 @@ const testDirectory = {
     testfile3: 'content of testfile3'
 };
 
-beforeEach(() => {
-    mock(testDirectory);
-});
-
-afterEach(() => {
-    fsRename.resetDependencies();
-    mock.restore()
-});
-
 describe('fsRename', () => {
+    beforeEach(() => {
+        mock(testDirectory);
+    });
+
+    afterEach(() => {
+        fsRename.resetDependencies();
+        mock.restore()
+    });
+
     it('takes array of src/dest pairs and moves files', () => {
         const pairs = [
             [ 'testfile1', 'foobarbaz' ],

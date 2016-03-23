@@ -13,15 +13,15 @@ const testDirectory = {
     testfile3: 'content of testfile3'
 };
 
-beforeEach(() => {
-    mock(testDirectory);
-});
-
-afterEach(() => {
-    mock.restore()
-});
-
 describe('getExistingFilenames', () => {
+    beforeEach(() => {
+        mock(testDirectory);
+    });
+
+    afterEach(() => {
+        mock.restore()
+    });
+
     it('returns array of all files if all source files exist', () => {
         const files = [ 'testfile1', 'testfile2', 'testfile3' ];
         const expected = files;

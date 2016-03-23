@@ -19,15 +19,15 @@ const testDirectory = {
     testfile3: 'content of testfile3'
 };
 
-beforeEach(() => {
-    mock(testDirectory);
-});
-
-afterEach(() => {
-    mock.restore()
-});
-
 describe('batchFileRenamer', () => {
+    beforeEach(() => {
+        mock(testDirectory);
+    });
+
+    afterEach(() => {
+        mock.restore()
+    });
+
 
     it('can rename a single file using basic rule', () => {
         const promise = batchFileRenamer({
