@@ -66,11 +66,6 @@ describe('getExistingFilenames', () => {
             mock.restore();
         });
 
-        it('takes list of files and returns them', () => {
-            const promise = getExistingFilenames([ 'testfile1', 'testfile2', 'testfile3' ]);
-            return assert.becomes(promise, [ 'testfile1', 'testfile2', 'testfile3' ]);
-        });
-
         it('ignores directory', () => {
             const promise = getExistingFilenames([ 'testfile1', 'testDir' ]);
             return assert.becomes(promise, [ 'testfile1' ]);
