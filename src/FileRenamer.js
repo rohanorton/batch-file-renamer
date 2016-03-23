@@ -31,6 +31,7 @@ class FileRenamer {
             logger.debug(`Moving temporary file, '${this.tmp}', to destination, '${this.dest}'`);
             try {
                 await this.fs.move(this.tmp, this.dest, { clobber: this.options[FORCE] });
+                await this.cleanUpTmpDirectories();
             } catch (err) {
                 if (err.code === 'EEXIST') {
                     logger.warn(`Failed to move file '${this.src}' to '${this.dest}': File exists`);
@@ -64,10 +65,26 @@ class FileRenamer {
         return this.options[INTERACTIVE] ? await this.promptUser(src, dest) : true;
     }
 
+    async cleanUpTmpDirectories() {
+        let dirs = path.dirname(this.tmp)
+        try {
+        while (dirs !== '.') {
+            await this.fs.rmdir(dirs);
+            dirs = path.dirname(dirs);
+        }
+        } catch (err) {
+            if (err.code == 'ENOENT'  || err.code == 'ENOTEMPTY') {
+            } else {
+                throw err;
+            }
+        }
+    }
+
     async cleanUp() {
         try {
             logger.debug(`Cleaning up: Moving temporary file, '${this.tmp}' back to source, '${this.src}'`);
             await this.fs.move(this.tmp, this.src);
+            await this.cleanUpTmpDirectories();
         } catch (err) {
             // There is often no file to move as it has already been moved.
             if (err.code !== 'ENOENT') {

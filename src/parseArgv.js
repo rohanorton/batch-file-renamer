@@ -1,5 +1,6 @@
 import yargs from 'yargs';
-import {ERROR_ON_MISSING_FILE, FORCE, BACKUP, INTERACTIVE, VERBOSE, QUIET, SILENT, COLOUR } from './flags';
+import {ERROR_ON_MISSING_FILE, FORCE, BACKUP, INTERACTIVE,
+    VERBOSE, QUIET, SILENT, COLOUR, RECURSIVE } from './flags';
 import mergeOptions from './mergeOptions';
 
 const parseArgv = (argv, custom = {}) => {
@@ -9,6 +10,7 @@ const parseArgv = (argv, custom = {}) => {
         [QUIET]: {  describe: 'Only log errors', type: 'boolean' },
         [SILENT]: { describe: 'No logging', type: 'boolean' },
         [FORCE]: { alias: 'f', describe: 'Overwrite existing files', type: 'boolean' },
+        [RECURSIVE]: { alias: 'r', describe: 'Name files in directory recursively', type: 'boolean' },
         [INTERACTIVE]: { alias: 'i', describe: 'Prompt for file change', type: 'boolean' },
         [BACKUP]: { describe: 'Create backup of file', type: 'boolean' },
         [ERROR_ON_MISSING_FILE]: { describe: 'Fail if any source file missing', type: 'boolean' },

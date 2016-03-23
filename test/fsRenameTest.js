@@ -185,5 +185,22 @@ describe('fsRename', () => {
         const promise = fsRename(pairs);
         return promise.then(() => assertFsResembles([ 'TESTFILE1', 'TESTFILE2' ]));
     });
+
+    it('can rename deeply nested directories without leaving .tmp file', () => {
+        mock({
+            'foo/bar/baz': {
+                quux: 'oh bother'
+            }
+        });
+
+        const pairs = [
+            [ 'foo/bar/baz/quux', 'forgot_what_i_was_doing' ]
+        ];
+        const promise = fsRename(pairs);
+        return promise.then(() => assertFsResembles({
+            foo: { bar: { baz: {} } },
+            forgot_what_i_was_doing: 'oh bother'
+        }));
+    });
 });
 

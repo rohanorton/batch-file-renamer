@@ -3,6 +3,7 @@ export const FORCE = 'force';
 export const BACKUP = 'backup';
 export const DRY_RUN = 'dry-run';
 export const INTERACTIVE = 'interactive';
+export const RECURSIVE = 'recursive';
 
 // LOG LEVELS:
 export const DEBUG = 'DEBUG';

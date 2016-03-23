@@ -241,4 +241,28 @@ describe('batchFileRenamer', () => {
             }));
         });
     });
+
+    describe('--recursive flag', () => {
+        it('renames files and directory', () => {
+            mock({
+                myfiles: {
+                    testfile1: 'content of testfile1',
+                    testfile2: 'content of testfile2'
+                }
+            })
+            const promise = batchFileRenamer({
+                rule: upperCaseRule,
+                argv: [ '--recursive', 'myfiles' ]
+            });
+            return promise.then(() => assertFsResembles({
+                myfiles: {},
+                MYFILES: {
+                    TESTFILE1: 'content of testfile1',
+                    TESTFILE2: 'content of testfile2'
+                }
+            }));
+        })
+
+    });
+
 });
