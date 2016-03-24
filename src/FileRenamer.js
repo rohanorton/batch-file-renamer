@@ -68,12 +68,14 @@ class FileRenamer {
     async cleanUpTmpDirectories() {
         let dirs = path.dirname(this.tmp)
         try {
-        while (dirs !== '.') {
-            await this.fs.rmdir(dirs);
-            dirs = path.dirname(dirs);
-        }
+            while (dirs !== '.') {
+                await this.fs.rmdir(dirs);
+                dirs = path.dirname(dirs);
+            }
         } catch (err) {
             if (err.code == 'ENOENT'  || err.code == 'ENOTEMPTY') {
+                // ignore error if directory doesn't exist or is not empty
+                return;
             } else {
                 throw err;
             }
