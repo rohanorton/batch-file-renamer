@@ -20,11 +20,16 @@ const initialiseLogger = ({ silent, quiet, verbose, DEBUG, colour }) => {
 }
 
 
-const batchFileRenamer = async ({ rule, argv, cliOptions, dupliationResolver }) => {
+const batchFileRenamer = async ({ rule, argv, cliOptions, dupliationResolver, pre, post }) => {
     argv = argv || process.argv.slice(2);
     const [filenames, options] = parseArgv(argv, cliOptions);
     initialiseLogger(options);
+
+    pre = convertToPromise(pre);
+    post = convertToPromise(post);
     rule = convertToPromise(rule);
+
+    await pre();
     const createNewNames = mapPromise((oldname) => rule(oldname, options));
 
     const oldnames = await getExistingFilenames(filenames, options);;
@@ -32,6 +37,8 @@ const batchFileRenamer = async ({ rule, argv, cliOptions, dupliationResolver }) 
     let pairs = buildArgs(oldnames, newnames);
     pairs = await handleDuplicates(pairs, dupliationResolver);
     await fsRename(pairs, options);
+
+    await post();
 }
 
 export default batchFileRenamer;

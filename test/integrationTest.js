@@ -1,4 +1,5 @@
 /*globals it, describe, beforeEach, afterEach */
+import sinon from 'sinon';
 import mock from 'mock-fs';
 import _ from 'lodash';
 import chai, { assert } from 'chai';
@@ -169,6 +170,48 @@ describe('batchFileRenamer', () => {
             ]
         });
         return assert.isRejected(promise, /Duplicate/);
+    });
+
+    it('calls pre function', () => {
+        const spy = sinon.spy();
+        const promise = batchFileRenamer({
+            pre: spy,
+            rule: upperCaseRule,
+            argv: [
+                'testfile1', 'testfile2', 'testfile3'
+            ]
+        });
+        return promise.then(() => {
+            assert(spy.called, 'Pre function should be called');
+        });
+    });
+
+    it('calls post function', () => {
+        const spy = sinon.spy();
+        const promise = batchFileRenamer({
+            post: spy,
+            rule: upperCaseRule,
+            argv: [
+                'testfile1', 'testfile2', 'testfile3'
+            ]
+        });
+        return promise.then(() => {
+            assert(spy.called, 'Post function should be called');
+        });
+    });
+
+    it('does not call post function if errors', () => {
+        const spy = sinon.spy();
+        const promise = batchFileRenamer({
+            post: spy,
+            rule: () => { throw new Error('DIE!!!') },
+            argv: [
+                'testfile1', 'testfile2', 'testfile3'
+            ]
+        });
+        return assert.isRejected(promise).then(() => {
+            assert(!spy.called, 'Post function should not be called');
+        });
     });
 
     describe('--error-on-missing', () => {
