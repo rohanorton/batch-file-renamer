@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/rohanorton/batch-file-renamer#readme",
   "devDependencies": {
-    "assert-fs-resembles": "git+https://github.com/rohanorton/assert-fs-resembles.git",
+    "assert-fs-resembles": "^0.1.0",
     "babel-cli": "^6.5.1",
     "babel-core": "^6.5.2",
     "babel-plugin-transform-runtime": "^6.5.2",
