@@ -1,6 +1,6 @@
 {
   "name": "batch-file-renamer",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Module to simplify writing node.js commandline applications that rename groups of files",
   "main": "index.js",
   "scripts": {
