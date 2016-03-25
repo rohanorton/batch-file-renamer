@@ -132,5 +132,42 @@ batchFileRenamer({
 The logger commands can only be used inside the batch-file-renamer process, as
 they are initialised according to verbosity variables.
 
-By default warnings and errors are shown, whereas logs are only shown in verbose
+By default, warnings and errors are shown, whereas logs are only shown in verbose
 mode.
+
+
+Duplicate Destination Handling
+------------------------------
+
+By default the application will throw an error if duplicate destinations are
+provided, however it is also possible to provide a duplicate destination
+resolver.
+
+This is an example of how you might use it:
+
+```js
+var incrementers = {};
+
+batchFileRenamer({
+    rule: rule,
+    duplicationResolver: function (duplicateDests, srcDestPairs) {
+        return srcDestPairs.map(function (pair) {
+            var src = pair[0];
+            var dest = pair[1];
+            var i;
+            if (duplicateDests.indexOf(dest) !== -1) {
+                if (!incrementers[dest]) {
+                    incrementers[dest] = 0;
+                } else {
+                    incrementers[dest] += 1;
+                }
+                i = incremneters[dest];
+                dest = dest + i;
+            }
+            return [src, dest];
+        })
+    }
+})
+```
+
+Bare in mind that further duplication checks are not run after this function.
