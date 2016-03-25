@@ -161,6 +161,16 @@ describe('batchFileRenamer', () => {
         }));
     })
 
+    it('throws error if duplicate destinations', () => {
+        const promise = batchFileRenamer({
+            rule: () => 'same', // all filenames => 'same'
+            argv: [
+                'testfile1', 'testfile2', 'testfile3'
+            ]
+        });
+        return assert.isRejected(promise, /Duplicate/);
+    });
+
     describe('--error-on-missing', () => {
 
         it('renames files if all exist and error-on-missing-files flag passed', () => {

@@ -5,6 +5,7 @@ import parseArgv from './parseArgv';
 import buildArgs from './buildArgs';
 import fsRename from './fsRename';
 import getExistingFilenames from './getExistingFilenames';
+import handleDuplicates from './handleDuplicates';
 import mapPromise from './mapPromise';
 
 import logger from './logger';
@@ -21,7 +22,7 @@ const initialiseLogger = ({ silent, quiet, verbose, DEBUG, colour }) => {
 }
 
 
-const batchFileRenamer = async ({ rule, argv, cliOptions }) => {
+const batchFileRenamer = async ({ rule, argv, cliOptions, dupliationResolver }) => {
     argv = argv || process.argv.slice(2);
     const [filenames, options] = parseArgv(argv, cliOptions);
     initialiseLogger(options);
@@ -30,7 +31,8 @@ const batchFileRenamer = async ({ rule, argv, cliOptions }) => {
 
     const oldnames = await getExistingFilenames(filenames, options);;
     const newnames = await createNewNames(oldnames);
-    const pairs = buildArgs(oldnames, newnames);
+    let pairs = buildArgs(oldnames, newnames);
+    pairs = await handleDuplicates(pairs, dupliationResolver);
     await fsRename(pairs, options);
 }
 

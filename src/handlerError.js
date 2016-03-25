@@ -5,7 +5,8 @@ import logger from './logger';
 
 const formatMessage = (err, args = {}) => {
     const codes = defaults({
-        ENOENT: 'No such file or directory: ' + err.path
+        ENOENT: `No such file or directory: '${err.path}'`,
+        EDUPLDEST: `Duplicate file destinations: '${ err.duplicates.join("', '")}'`
     }, args.errorMessages);
     return codes[err.code] || err.message || 'An unexpected error occurred';
 }
