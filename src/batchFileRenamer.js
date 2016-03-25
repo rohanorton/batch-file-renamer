@@ -1,6 +1,4 @@
-import hasCallback from 'has-callback';
-import promisify from 'es6-promisify';
-
+import convertToPromise from './convertToPromise';
 import parseArgv from './parseArgv';
 import buildArgs from './buildArgs';
 import fsRename from './fsRename';
@@ -26,7 +24,7 @@ const batchFileRenamer = async ({ rule, argv, cliOptions, dupliationResolver }) 
     argv = argv || process.argv.slice(2);
     const [filenames, options] = parseArgv(argv, cliOptions);
     initialiseLogger(options);
-    rule = hasCallback(rule) ? promisify(rule) : rule;
+    rule = convertToPromise(rule);
     const createNewNames = mapPromise((oldname) => rule(oldname, options));
 
     const oldnames = await getExistingFilenames(filenames, options);;

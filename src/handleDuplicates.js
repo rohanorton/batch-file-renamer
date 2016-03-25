@@ -1,7 +1,6 @@
 import { _, map, countBy, identity, toPairs, reduce, first, last } from 'lodash/fp';
 import logger from './logger';
-import hasCallback from 'has-callback';
-import promisify from 'es6-promisify';
+import convertToPromise from './convertToPromise';
 
 class DuplicationError extends Error {
     constructor(message, duplicates) {
@@ -30,7 +29,7 @@ const getDuplicates = (dests) => {
 }
 
 const handleDuplicates = async (pairs, resolver = errorOnDuplicate) => {
-    resolver = hasCallback(resolver) ? promisify(resolver) : resolver;
+    resolver = convertToPromise(resolver);
     const duplicates = getDuplicates(map(last, pairs));
     if (duplicates.length) {
         pairs = await resolver(duplicates, pairs);
