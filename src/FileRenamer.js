@@ -29,6 +29,7 @@ class FileRenamer {
     async moveToDest() {
         if (await this.shouldRename(this.src, this.dest)) {
             logger.debug(`Moving temporary file, '${this.tmp}', to destination, '${this.dest}'`);
+            logger.log(`Moving '${this.src}' to '${this.dest}'`);
             try {
                 await this.fs.move(this.tmp, this.dest, { clobber: this.options[FORCE] });
                 await this.cleanUpTmpDirectories();
