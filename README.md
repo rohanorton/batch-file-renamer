@@ -161,7 +161,7 @@ batchFileRenamer({
                 } else {
                     incrementers[dest] += 1;
                 }
-                i = incremneters[dest];
+                i = incrementers[dest];
                 dest = dest + i;
             }
             return [src, dest];
