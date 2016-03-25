@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { includes, defaults } from 'lodash/fp';
+import { includes, defaults, noop } from 'lodash/fp';
 import {DEBUG} from './flags';
 import logger from './logger';
 
@@ -13,6 +13,8 @@ const formatMessage = (err, args = {}) => {
 
 const handleError = (args = {}) => {
     return (err) => {
+        const onError = args.onError || noop;
+        onError();
         logger.error('Error:')
         logger.error(formatMessage(err, args));
         logger.debug('');
