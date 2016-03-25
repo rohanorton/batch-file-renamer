@@ -99,3 +99,38 @@ batchFileRenamer({
 
 The pre and post options may be async (promises or callback), whilst the onError
 command is synchronous.
+
+Logging
+-------
+
+You could just log to stdout using console.log, however this won't respond to
+the provided verbose, silent, quiet and (hidden) DEBUG flags. A useful logger is
+provided.
+
+```js
+var batchFileRenamer = require('batch-file-renamer');
+var logger = batchFileRenamer.logger;
+
+batchFileRenamer({
+    pre: function () {
+        logger.debug('The application is starting');
+        logger.log('Welcome to this amazing application!');
+    },
+    rule: function (filename) {
+        filename = filename.toLowerCase();
+        if (filename.length > 100)  {
+            logger.warn('That is a long filename');
+        }
+        if (filename === 'never_gonna_give_you_up') {
+            logger.error('Rickrolled');
+        }
+        return filename;
+    }
+})
+```
+
+The logger commands can only be used inside the batch-file-renamer process, as
+they are initialised according to verbosity variables.
+
+By default warnings and errors are shown, whereas logs are only shown in verbose
+mode.
