@@ -171,3 +171,24 @@ batchFileRenamer({
 ```
 
 Bare in mind that further duplication checks are not run after this function.
+
+Custom Error Messages
+=====================
+
+If you throw an error (or return error in promise / node callback) it gets
+handled by batch-file-renamer's error handler. You can provide your own message
+simply by throwing an error with your own message.
+
+Also, if you want to provide custom error messages for system errors, you can
+add them like so:
+
+```js
+batchFileRenamer({
+    rule: rule,
+    errorMessages: {
+        ENOMEM: 'Sorry to mention it, but you are out of memory'
+    }
+})
+```
+
+This relies on the error.code being ENOMEM.
