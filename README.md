@@ -34,6 +34,11 @@ $ ls
 filename01.txt filename02.txt filename.txt
 ```
 
+To prevent a file from being renamed, you can simply have the rule return null
+and it won't rename that file.
+
+Rules can be synchronous, node callbacks, or promises.
+
 CLI Options
 -----------
 
