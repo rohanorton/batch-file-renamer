@@ -74,7 +74,6 @@ Options:
 Uses [yargs](https://github.com/yargs/yargs) in the back, so you should be able
 to pass anything you would pass to yargs.options method.
 
-
 Pre/Post/onError Commands
 -------------------------
 
@@ -135,7 +134,6 @@ they are initialised according to verbosity variables.
 By default, warnings and errors are shown, whereas logs are only shown in verbose
 mode.
 
-
 Duplicate Destination Handling
 ------------------------------
 
@@ -173,7 +171,7 @@ batchFileRenamer({
 Bare in mind that further duplication checks are not run after this function.
 
 Custom Error Messages
-=====================
+---------------------
 
 If you throw an error (or return error in promise / node callback) it gets
 handled by batch-file-renamer's error handler. You can provide your own message
