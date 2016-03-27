@@ -214,6 +214,24 @@ describe('batchFileRenamer', () => {
         });
     });
 
+    it('does not allow rule to change state by manipulating options', () => {
+        const promise = batchFileRenamer({
+            rule: (filename, options) => {
+                var filename = filename + options.foo;
+                options.foo = 'baz';
+                return filename;
+            },
+            argv: [
+                '--foo=bar', 'testfile1', 'testfile2', 'testfile3'
+            ]
+        });
+        return promise.then(() => assertFsResembles({
+            testfile1bar: 'content of testfile1',
+            testfile2bar: 'content of testfile2',
+            testfile3bar: 'content of testfile3',
+        }));
+    });
+
     describe('--error-on-missing', () => {
 
         it('renames files if all exist and error-on-missing-files flag passed', () => {

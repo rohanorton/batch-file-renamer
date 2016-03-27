@@ -5,6 +5,7 @@ import fsRename from './fsRename';
 import getExistingFilenames from './getExistingFilenames';
 import handleDuplicates from './handleDuplicates';
 import mapPromise from './mapPromise';
+import { clone } from 'lodash';
 
 import logger from './logger';
 
@@ -30,7 +31,7 @@ const batchFileRenamer = async ({ rule, argv, cliOptions, dupliationResolver, pr
     rule = convertToPromise(rule);
 
     await pre();
-    const createNewNames = mapPromise((oldname) => rule(oldname, options));
+    const createNewNames = mapPromise((oldname) => rule(oldname, clone(options)));
 
     const oldnames = await getExistingFilenames(filenames, options);;
     const newnames = await createNewNames(oldnames);
